@@ -1,0 +1,22 @@
+<configuration>
+    <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+        <target>System.err</target>
+    </appender>
+
+    <appender name="main" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %logger{36} %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.oxidize.Main" level="INFO" additivity="false">
+        <appender-ref ref="stderr"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="main"/>
+    </root>
+</configuration>
