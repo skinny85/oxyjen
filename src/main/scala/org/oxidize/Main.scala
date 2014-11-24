@@ -27,7 +27,7 @@ object Main {
     val targetDir = if (args.length > 1) args(1) else "."
 
     val inString = FileUtils.readFileToString(new File(template))
-    val regex = Pattern.compile("@\\{=[\\s]*([^\\s]*)[\\s]*\\}@")
+    val regex = Pattern.compile("@\\{=([^{]+)\\}@")
     val matcher = regex.matcher(inString)
     val sb = new StringBuffer
     val nashorn = new ScriptEngineManager().getEngineByName("nashorn")
