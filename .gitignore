@@ -1,0 +1,7 @@
+# Intellij-IDEA files
+.idea/
+*.iml
+out/
+
+# SBT
+target/
