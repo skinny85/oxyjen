@@ -35,10 +35,16 @@ object Main {
     0
   }
 
-  def applyTemplate(template: String, targetDir: String) {
-    val inString = FileUtils.readFileToString(new File(template))
-    val regex = Pattern.compile("@\\{=([^{]+)\\}@")
-    val matcher = regex.matcher(inString)
+  def applyTemplate(templatePath: String, targetDir: String) {
+    val template = FileUtils.readFileToString(new File(templatePath))
+    val output = applyTemplate(template)
+    val outFile = new File(targetDir, templatePath)
+    FileUtils.writeStringToFile(outFile, output)
+  }
+
+  def applyTemplate(template: String): String = {
+    val regex = Pattern.compile("@\\{=?([^@]+)\\}@")
+    val matcher = regex.matcher(template)
     val sb = new StringBuffer
     val nashorn = new ScriptEngineManager().getEngineByName("nashorn")
     val context = new SimpleScriptContext()
@@ -56,12 +62,12 @@ object Main {
     context.setAttribute("setFileName", setFileName, ScriptContext.ENGINE_SCOPE)
     while (matcher.find()) {
       val script = matcher.group(1)
+      println("script to eval: " + script)
       val result = nashorn.eval(script, context)
       matcher.appendReplacement(sb, String.valueOf(result))
     }
     println("Custom file name is: '" + customFileName + "'")
     matcher.appendTail(sb)
-    val outFile = new File(targetDir, template)
-    FileUtils.writeStringToFile(outFile, sb.toString)
+    sb.toString
   }
 }

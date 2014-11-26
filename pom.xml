@@ -1,6 +1,11 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>artifactId</artifactId>@{= setFileName('abc') }@
-    <groupId>@{= 'bleh.' + groupId + ".dupa" }@</groupId>
+    <artifactId>artifactId</artifactId>@{ setFileName('abc') }@
+    <groupId>
+        @{=
+            var prefix = 'bleh.';
+            prefix + groupId + ".dupa"
+        }@
+    </groupId>
     <version>1.0</version>
 </project>
