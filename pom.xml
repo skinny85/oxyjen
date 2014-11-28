@@ -1,6 +1,6 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>artifactId</artifactId>@{ setFileName('abc') }@
+    <artifactId>artifactId</artifactId>@{ $oxidize.setFileName('pom') }@
     <groupId>
         @{=
             var prefix = 'bleh.';

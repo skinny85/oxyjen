@@ -42,31 +42,27 @@ object Main {
     FileUtils.writeStringToFile(outFile, output)
   }
 
+  class Oxidize {
+    def setFileName(path: String): Unit = {
+      println(s"$$oxidize.setFileName('$path') called")
+    }
+  }
+
   def applyTemplate(template: String): String = {
-    val regex = Pattern.compile("@\\{=?([^@]+)\\}@")
+    val regex = Pattern.compile("@\\{=?(.*?)\\}@", Pattern.DOTALL)
     val matcher = regex.matcher(template)
     val sb = new StringBuffer
     val nashorn = new ScriptEngineManager().getEngineByName("nashorn")
     val context = new SimpleScriptContext()
     context.setAttribute("groupId", "com.example.js", ScriptContext.ENGINE_SCOPE)
-    var customFileName: String = null
-    val setFileName = new MyFunction[String, String] {
-      def apply(str: String): String = {
-        customFileName = str
-        ""
-      }
+    context.setAttribute("$oxidize", new Oxidize, ScriptContext.ENGINE_SCOPE)
 
-      override def toString: String = "SetFileName"
-    }
-
-    context.setAttribute("setFileName", setFileName, ScriptContext.ENGINE_SCOPE)
     while (matcher.find()) {
       val script = matcher.group(1)
-      println("script to eval: " + script)
+      val expressionBlock = matcher.group(0).startsWith("@{=")
       val result = nashorn.eval(script, context)
-      matcher.appendReplacement(sb, String.valueOf(result))
+      matcher.appendReplacement(sb, if (expressionBlock) String.valueOf(result) else "")
     }
-    println("Custom file name is: '" + customFileName + "'")
     matcher.appendTail(sb)
     sb.toString
   }
