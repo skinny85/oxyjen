@@ -38,6 +38,16 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       "groupId=com.example.js")
   }
 
+  it should "create the output directory when it doesn't exist" in {
+    val testDir = "target/new-dir-test"
+    checkOxidizer(testDir = testDir,
+      template = "@{= a + b }@\n",
+      outDir = testDir + "/a/b",
+      outFile = None,
+      expected = "1234\n",
+      "a=12", "b=34")
+  }
+
   private def checkOxidizer(testDir: String,
                     template: String,
                     outDir: String,
