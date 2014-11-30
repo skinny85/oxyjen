@@ -10,14 +10,14 @@ class TemplateEngineSpec extends AbstractUnitSpec {
   it can "do complex JS expressions" in {
     checkEngineRenders(
       """@{=
-        |(function() {
-        |  var A = [1, 2, 3], i, ret = 0;
-        |  for (var i = 0; i < A.length; i++) {
-        |    ret += A[i];
-        |  };
-        |  return ret;
-        |})();
-      }@""".stripMargin, "6")
+        (function() {
+          var A = [1, 2, 3], i, ret = 0;
+          for (var i = 0; i < A.length; i++) {
+            ret += A[i];
+          };
+          return ret;
+        })();
+      }@""", "6")
   }
 
   it should "ignore the result of the statement block" in {
@@ -41,7 +41,7 @@ class TemplateEngineSpec extends AbstractUnitSpec {
                                  expectedFile: String = "",
                                  context: Map[String, Any] = Map.empty) {
     val result = TemplateEngine.applyTemplate(template, new OxidizeContext(null, context))
-    result.output should be(expectedOutput)
+    result.output should be(if (expectedOutput.isEmpty) "" else expectedOutput + "\n")
     if (!expectedFile.isEmpty)
       result.targetFile should be (expectedFile)
   }
