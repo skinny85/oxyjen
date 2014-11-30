@@ -50,10 +50,10 @@ object Main {
   }
 
   def applyTemplate(templatePath: String, targetDir: String, context: Map[String, Any]) {
-    val template = FileUtils.readFileToString(new File(templatePath))
-    val result = TemplateEngine.applyTemplate(template, new OxidizeContext(templatePath, context))
-    // TODO this is wrong. TemplatePath can be a path, while OxidizeContext should take
-    // a simple file name. This needs to be checked
+    val templateFile = new File(templatePath)
+    val template = FileUtils.readFileToString(templateFile)
+    val result = TemplateEngine.applyTemplate(template,
+      new OxidizeContext(templateFile.getName, context))
 
     val outFile = new File(targetDir, result.targetFile)
     FileUtils.writeStringToFile(outFile, result.output)
