@@ -25,10 +25,15 @@ class TemplateEngineSpec extends AbstractUnitSpec {
   }
 
   it should "contain an $oxidize object with a setFileName(String) method" in {
-    checkEngineRenders("@{ $oxidize.setFileName('test') }@", "")
+    checkEngineRenders("@{ $oxidize.setFileName('test') }@")
   }
 
-  private def checkEngineRenders(template: String, expected: String) {
-    Main.applyTemplate(template) should be(expected)
+  it should "set variables from context" in {
+    checkEngineRenders("@{= a + b }@", "46", Map("a" -> 12, "b" -> 34))
+  }
+
+  private def checkEngineRenders(template: String, expected: String = "",
+                                 context: Map[String, Any] = Map.empty) {
+    TemplateEngine.applyTemplate(template, context) should be(expected)
   }
 }

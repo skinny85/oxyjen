@@ -1,16 +1,9 @@
 package org.oxidize
 
 import java.io.File
-import java.util.regex.Pattern
-import javax.script.{ScriptContext, ScriptEngineManager, SimpleScriptContext}
 
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
-
-@FunctionalInterface
-trait MyFunction[T, R] {
-  def apply(t: T): R
-}
 
 object Main {
   private val errLog = LoggerFactory.getLogger("org.oxidize.Main")
@@ -29,41 +22,40 @@ object Main {
       return 1
     }
     val template = args(0)
-    val targetDir = if (args.length > 1) args(1) else "."
+    val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
 
-    applyTemplate(template, targetDir)
+    applyTemplate(template, targetDir, context)
     0
   }
 
-  def applyTemplate(templatePath: String, targetDir: String) {
+  def parseTargetDirAndContext(args: Seq[String]): (String, Map[String, Any]) = {
+    def looksLikeTargetDir(arg: String) = !arg.contains('=')
+    def createContext(strings: Seq[String]) = strings.foldLeft(Map.empty[String, Any])((m, s) => {
+      val parts = s.split('=')
+      if (parts.length != 2)
+        throw new IncorrectCliArgs(s)
+      else
+        m + ((parts(0), parts(1)))
+    })
+
+    if (args.isEmpty) {
+      (".", Map.empty[String, Any])
+    } else {
+      if (looksLikeTargetDir(args(0))) {
+        (args(0), createContext(args.slice(1, args.size)))
+      } else {
+        (".", createContext(args))
+      }
+    }
+  }
+
+  def applyTemplate(templatePath: String, targetDir: String, context: Map[String, Any]) {
     val template = FileUtils.readFileToString(new File(templatePath))
-    val output = applyTemplate(template)
+    val output = TemplateEngine.applyTemplate(template, context)
     val outFile = new File(targetDir, templatePath)
     FileUtils.writeStringToFile(outFile, output)
   }
-
-  class Oxidize {
-    def setFileName(path: String): Unit = {
-      println(s"$$oxidize.setFileName('$path') called")
-    }
-  }
-
-  def applyTemplate(template: String): String = {
-    val regex = Pattern.compile("@\\{=?(.*?)\\}@", Pattern.DOTALL)
-    val matcher = regex.matcher(template)
-    val sb = new StringBuffer
-    val nashorn = new ScriptEngineManager().getEngineByName("nashorn")
-    val context = new SimpleScriptContext()
-    context.setAttribute("groupId", "com.example.js", ScriptContext.ENGINE_SCOPE)
-    context.setAttribute("$oxidize", new Oxidize, ScriptContext.ENGINE_SCOPE)
-
-    while (matcher.find()) {
-      val script = matcher.group(1)
-      val expressionBlock = matcher.group(0).startsWith("@{=")
-      val result = nashorn.eval(script, context)
-      matcher.appendReplacement(sb, if (expressionBlock) String.valueOf(result) else "")
-    }
-    matcher.appendTail(sb)
-    sb.toString
-  }
 }
+
+class IncorrectCliArgs(arg: String) extends
+  Exception(s"Argument is not a 'key=value' pair: '$arg'")
