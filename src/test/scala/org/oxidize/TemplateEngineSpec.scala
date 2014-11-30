@@ -25,15 +25,24 @@ class TemplateEngineSpec extends AbstractUnitSpec {
   }
 
   it should "contain an $oxidize object with a setFileName(String) method" in {
-    checkEngineRenders("@{ $oxidize.setFileName('test') }@")
+    checkEngineRenders("@{ $oxidize.setFileName('test') }@", expectedFile = "test")
   }
 
   it should "set variables from context" in {
-    checkEngineRenders("@{= a + b }@", "46", Map("a" -> 12, "b" -> 34))
+    checkEngineRenders("@{= a + b }@", "46", context = Map("a" -> 12, "b" -> 34))
   }
 
-  private def checkEngineRenders(template: String, expected: String = "",
+  it should "does not convert variables from Strings to JavaScript types" in {
+    checkEngineRenders("@{= a + b }@", "1234", context = Map("a" -> "12", "b" -> "34"))
+  }
+
+  private def checkEngineRenders(template: String,
+                                 expectedOutput: String = "",
+                                 expectedFile: String = "",
                                  context: Map[String, Any] = Map.empty) {
-    TemplateEngine.applyTemplate(template, context) should be(expected)
+    val result = TemplateEngine.applyTemplate(template, new OxidizeContext(null, context))
+    result.output should be(expectedOutput)
+    if (!expectedFile.isEmpty)
+      result.targetFile should be (expectedFile)
   }
 }
