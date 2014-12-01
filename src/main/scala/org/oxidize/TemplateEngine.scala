@@ -18,8 +18,8 @@ object TemplateEngine {
     bind(scriptContext, "$oxidize", oxidizeJsObject)
 
     while (matcher.find()) {
-      val script = matcher.group(1)
       val expressionBlock = matcher.group(0).startsWith("@{=")
+      val script = matcher.group(1)
       val result = nashorn.eval(script, scriptContext)
       matcher.appendReplacement(sb, if (expressionBlock) String.valueOf(result) else "")
     }

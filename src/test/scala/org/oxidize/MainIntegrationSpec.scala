@@ -48,6 +48,22 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       "a=12", "b=34")
   }
 
+  it should "allow setting target directory in the script" in {
+    val testDir = "target/out-dir-test"
+    checkOxidizer(testDir = testDir,
+      template =
+        """abc reversed is '@{= 'abc'.split('').reverse().join('') }@'.
+          |@{
+          |  var parts = groupId.split(".");
+          |  $oxidize.setFileName(parts.join("/") + "/" + fileName);
+          |}@
+          |""".stripMargin,
+      outDir = testDir,
+      outFile = Some("a/b/c/output.txt"),
+      expected = "abc reversed is 'cba'.\n",
+      "groupId=a.b.c", "fileName=output.txt")
+  }
+
   private def checkOxidizer(testDir: String,
                     template: String,
                     outDir: String,
