@@ -64,6 +64,20 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       "groupId=a.b.c", "fileName=output.txt")
   }
 
+  it should "call all templates recursively when directory is given as argument" in {
+    val testDir = "target/recur-test"
+    ensureTestDirIsEmpty(testDir)
+    val template1 = testDir + "/" + "templ1.txt"
+    FileUtils.writeStringToFile(new File(template1), "@{= 1 + 2 }@")
+    val template2 = testDir + "/" + "templ2.txt"
+    FileUtils.writeStringToFile(new File(template2), "3 + 4")
+    val outDir = testDir + "/out"
+
+    Main._main(Seq(testDir, outDir)) should be (0)
+    FileUtils.readFileToString(new File(outDir + "/templ1.txt")) should be ("3\n")
+    FileUtils.readFileToString(new File(outDir + "/templ2.txt")) should be ("3 + 4\n")
+  }
+
   private def checkOxidizer(testDir: String,
                     template: String,
                     outDir: String,

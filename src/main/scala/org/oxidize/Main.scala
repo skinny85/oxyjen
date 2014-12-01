@@ -51,12 +51,17 @@ object Main {
 
   def applyTemplate(templatePath: String, targetDir: String, context: Map[String, Any]) {
     val templateFile = new File(templatePath)
-    val template = FileUtils.readFileToString(templateFile)
-    val result = TemplateEngine.applyTemplate(template,
-      new OxidizeContext(templateFile.getName, context))
+    if (templateFile.isDirectory) {
+      for (subfile <- templateFile.listFiles())
+        applyTemplate(subfile.getPath, targetDir, context)
+    } else {
+      val template = FileUtils.readFileToString(templateFile)
+      val result = TemplateEngine.applyTemplate(template,
+        new OxidizeContext(templateFile.getName, context))
 
-    val outFile = new File(targetDir, result.targetFile)
-    FileUtils.writeStringToFile(outFile, result.output)
+      val outFile = new File(targetDir, result.targetFile)
+      FileUtils.writeStringToFile(outFile, result.output)
+    }
   }
 }
 
