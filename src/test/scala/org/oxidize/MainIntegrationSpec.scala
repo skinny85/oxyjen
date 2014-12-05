@@ -6,8 +6,10 @@ import org.apache.commons.io.FileUtils
 import org.oxidize.test.AbstractUnitSpec
 
 class MainIntegrationSpec extends AbstractUnitSpec {
+  val testsTmpDir = "target/integration-test-tmp/"
+
   "Main" should "generate a POM according to template" in {
-    val testDir = "target/pom-test"
+    val testDir = testsTmpDir + "pom-test"
     checkOxidizer(testDir = testDir,
       template =
         """@{ $oxidize.setFileName('pom.xml') }@
@@ -23,6 +25,8 @@ class MainIntegrationSpec extends AbstractUnitSpec {
           |    <version>1.0</version>
           |</project>
           |""".stripMargin,
+      inFile = "template.txt",
+      mainFirstArg = None,
       outDir = testDir,
       outFile = Some("pom.xml"),
       expected =
@@ -39,9 +43,11 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "create the output directory when it doesn't exist" in {
-    val testDir = "target/new-dir-test"
+    val testDir = testsTmpDir + "new-dir-test"
     checkOxidizer(testDir = testDir,
       template = "@{= a + b }@\n",
+      inFile = "template.txt",
+      mainFirstArg = None,
       outDir = testDir + "/a/b",
       outFile = None,
       expected = "1234\n",
@@ -49,7 +55,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "allow setting target directory in the script" in {
-    val testDir = "target/out-dir-test"
+    val testDir = testsTmpDir + "out-dir-test"
     checkOxidizer(testDir = testDir,
       template =
         """abc reversed is '@{= 'abc'.split('').reverse().join('') }@'.
@@ -58,6 +64,8 @@ class MainIntegrationSpec extends AbstractUnitSpec {
           |  $oxidize.setFileName(parts.join("/") + "/" + fileName);
           |}@
           |""".stripMargin,
+      inFile = "template.txt",
+      mainFirstArg = None,
       outDir = testDir,
       outFile = Some("a/b/c/output.txt"),
       expected = "abc reversed is 'cba'.\n",
@@ -65,7 +73,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "call all templates recursively when directory is given as argument" in {
-    val testDir = "target/recur-test"
+    val testDir = testsTmpDir + "recur-test"
     ensureTestDirIsEmpty(testDir)
     val template1 = testDir + "/" + "templ1.txt"
     FileUtils.writeStringToFile(new File(template1), "@{= 1 + 2 }@")
@@ -78,25 +86,39 @@ class MainIntegrationSpec extends AbstractUnitSpec {
     FileUtils.readFileToString(new File(outDir + "/templ2.txt")) should be ("3 + 4\n")
   }
 
+  it should "preserve the original location of the file" in {
+    val testDir = testsTmpDir + "flatten-test"
+    checkOxidizer(testDir = testDir,
+      template =
+        """
+          |abc
+          |
+          |""".stripMargin,
+      inFile = "META-INF/manifest.mf",
+      mainFirstArg = Some(testDir),
+      outDir = testDir + "/out",
+      outFile = Some("META-INF/manifest.mf"),
+      expected = "abc\n")
+  }
+
   private def checkOxidizer(testDir: String,
                     template: String,
+                    inFile: String,
+                    mainFirstArg: Option[String],
                     outDir: String,
                     outFile: Option[String],
                     expected: String,
                     args: String*) {
     ensureTestDirIsEmpty(testDir)
 
-    val templateFilePath = testDir + "/template.txt"
+    val templateFilePath = testDir + "/" + inFile
     FileUtils.writeStringToFile(new File(templateFilePath), template)
 
-    Main._main(Seq(templateFilePath, outDir) ++ Seq(args: _*)) should be(0)
+    Main._main(Seq(mainFirstArg.getOrElse(templateFilePath), outDir) ++ Seq(args: _*)) should be(0)
 
-    val outFileName = outFile match {
-      case Some(o) => o
-      case None => "template.txt"
-    }
-    val output = FileUtils.readFileToString(new File(outDir + "/" + outFileName))
-    output should be(expected)
+    val output = FileUtils.readFileToString(new File(outDir + "/" +
+      outFile.getOrElse(inFile)))
+    output should be (expected)
   }
 
   private def ensureTestDirIsEmpty(path: String): Unit = {

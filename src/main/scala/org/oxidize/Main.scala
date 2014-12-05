@@ -53,15 +53,29 @@ object Main {
     val templateFile = new File(templatePath)
     if (templateFile.isDirectory) {
       for (subfile <- templateFile.listFiles())
-        applyTemplate(subfile.getPath, targetDir, context)
+        applyTemplate2(subfile.getPath, targetDir, context)
     } else {
-      val template = FileUtils.readFileToString(templateFile)
-      val result = TemplateEngine.applyTemplate(template,
-        new OxidizeContext(templateFile.getName, context))
-
-      val outFile = new File(targetDir, result.targetFile)
-      FileUtils.writeStringToFile(outFile, result.output)
+      applyTemplateToNonDirFile(templateFile, targetDir, context)
     }
+  }
+
+  private def applyTemplate2(templatePath: String, targetDir: String, context: Map[String, Any]) {
+    val templateFile = new File(templatePath)
+    if (templateFile.isDirectory) {
+      for (subfile <- templateFile.listFiles())
+        applyTemplate2(subfile.getPath, targetDir + "/" + templateFile.getName, context)
+    } else {
+      applyTemplateToNonDirFile(templateFile, targetDir, context)
+    }
+  }
+
+  private def applyTemplateToNonDirFile(templateFile: File, targetDir: String, context: Map[String, Any]) {
+    val template = FileUtils.readFileToString(templateFile)
+    val result = TemplateEngine.applyTemplate(template,
+      new OxidizeContext(templateFile.getName, context))
+
+    val outFile = new File(targetDir, result.targetFile)
+    FileUtils.writeStringToFile(outFile, result.output)
   }
 }
 
