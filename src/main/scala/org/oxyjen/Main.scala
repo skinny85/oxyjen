@@ -1,4 +1,4 @@
-package org.oxidize
+package org.oxyjen
 
 import java.io.File
 
@@ -6,9 +6,9 @@ import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 
 object Main {
-  private val errLog = LoggerFactory.getLogger("org.oxidize.Main")
+  private val errLog = LoggerFactory.getLogger("org.oxyjen.Main")
 
-  val USAGE = "Usage: oxidize TEMPLATE [TARGET_DIR] [NAME=VALUE]..."
+  val USAGE = "Usage: o2 TEMPLATE [TARGET_DIR] [NAME=VALUE]..."
 
   def main(args: Array[String]) {
     val code = _main(args)
@@ -72,7 +72,7 @@ object Main {
   private def applyTemplateToNonDirFile(templateFile: File, targetDir: String, context: Map[String, Any]) {
     val template = FileUtils.readFileToString(templateFile)
     val result = TemplateEngine.applyTemplate(template,
-      new OxidizeContext(templateFile.getName, context))
+      new OxyjenContext(templateFile.getName, context))
 
     val outFile = new File(targetDir, result.targetFile)
     FileUtils.writeStringToFile(outFile, result.output)

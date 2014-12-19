@@ -1,6 +1,6 @@
-package org.oxidize
+package org.oxyjen
 
-import org.oxidize.test.AbstractUnitSpec
+import org.oxyjen.test.AbstractUnitSpec
 
 class TemplateEngineSpec extends AbstractUnitSpec {
   "Template Engine" should "eval simple JavaScript" in {
@@ -24,8 +24,8 @@ class TemplateEngineSpec extends AbstractUnitSpec {
     checkEngineRenders("@{ 1 }@2", "2")
   }
 
-  it should "contain an $oxidize object with a setFileName(String) method" in {
-    checkEngineRenders("@{ $oxidize.setFileName('test') }@", expectedFile = "test")
+  it should "contain an $o2 object with a setFileName(String) method" in {
+    checkEngineRenders("@{ $o2.setFileName('test') }@", expectedFile = "test")
   }
 
   it should "set variables from context" in {
@@ -40,7 +40,7 @@ class TemplateEngineSpec extends AbstractUnitSpec {
                                  expectedOutput: String = "",
                                  expectedFile: String = "",
                                  context: Map[String, Any] = Map.empty) {
-    val result = TemplateEngine.applyTemplate(template, new OxidizeContext(null, context))
+    val result = TemplateEngine.applyTemplate(template, new OxyjenContext(null, context))
     result.output should be(if (expectedOutput.isEmpty) "" else expectedOutput + "\n")
     if (!expectedFile.isEmpty)
       result.targetFile should be (expectedFile)

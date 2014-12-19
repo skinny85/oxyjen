@@ -1,7 +1,7 @@
-package org.oxidize
+package org.oxyjen
 
-import org.oxidize.Main.parseTargetDirAndContext
-import org.oxidize.test.AbstractUnitSpec
+import org.oxyjen.Main.parseTargetDirAndContext
+import org.oxyjen.test.AbstractUnitSpec
 
 class MainSpec extends AbstractUnitSpec {
   "Main" should "return error when called without arguments" in {

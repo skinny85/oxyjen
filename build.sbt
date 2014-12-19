@@ -1,4 +1,4 @@
-name := "oxidize"
+name := "oxyjen"
 
 version := "0.1"
 

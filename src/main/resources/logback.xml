@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.oxidize.Main" level="INFO" additivity="false">
+    <logger name="org.oxyjen.Main" level="INFO" additivity="false">
         <appender-ref ref="stderr"/>
     </logger>
 

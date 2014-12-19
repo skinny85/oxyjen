@@ -1,4 +1,4 @@
-package org.oxidize.test
+package org.oxyjen.test
 
 import org.scalatest.{FlatSpec, ShouldMatchers}
 

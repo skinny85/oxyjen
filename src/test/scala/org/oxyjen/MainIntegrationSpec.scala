@@ -1,18 +1,18 @@
-package org.oxidize
+package org.oxyjen
 
 import java.io.File
 
 import org.apache.commons.io.FileUtils
-import org.oxidize.test.AbstractUnitSpec
+import org.oxyjen.test.AbstractUnitSpec
 
 class MainIntegrationSpec extends AbstractUnitSpec {
   val testsTmpDir = "target/integration-test-tmp/"
 
   "Main" should "generate a POM according to template" in {
     val testDir = testsTmpDir + "pom-test"
-    checkOxidizer(testDir = testDir,
+    callAndVerifyGeneration(testDir = testDir,
       template =
-        """@{ $oxidize.setFileName('pom.xml') }@
+        """@{ $o2.setFileName('pom.xml') }@
           |<project>
           |    <modelVersion>4.0.0</modelVersion>
           |    <artifactId>artifactId</artifactId>
@@ -44,7 +44,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
 
   it should "create the output directory when it doesn't exist" in {
     val testDir = testsTmpDir + "new-dir-test"
-    checkOxidizer(testDir = testDir,
+    callAndVerifyGeneration(testDir = testDir,
       template = "@{= a + b }@\n",
       inFile = "template.txt",
       mainFirstArg = None,
@@ -56,12 +56,12 @@ class MainIntegrationSpec extends AbstractUnitSpec {
 
   it should "allow setting target directory in the script" in {
     val testDir = testsTmpDir + "out-dir-test"
-    checkOxidizer(testDir = testDir,
+    callAndVerifyGeneration(testDir = testDir,
       template =
         """abc reversed is '@{= 'abc'.split('').reverse().join('') }@'.
           |@{
           |  var parts = groupId.split(".");
-          |  $oxidize.setFileName(parts.join("/") + "/" + fileName);
+          |  $o2.setFileName(parts.join("/") + "/" + fileName);
           |}@
           |""".stripMargin,
       inFile = "template.txt",
@@ -88,7 +88,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
 
   it should "preserve the original location of the file" in {
     val testDir = testsTmpDir + "flatten-test"
-    checkOxidizer(testDir = testDir,
+    callAndVerifyGeneration(testDir = testDir,
       template =
         """
           |abc
@@ -101,14 +101,14 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       expected = "abc\n")
   }
 
-  private def checkOxidizer(testDir: String,
-                    template: String,
-                    inFile: String,
-                    mainFirstArg: Option[String],
-                    outDir: String,
-                    outFile: Option[String],
-                    expected: String,
-                    args: String*) {
+  private def callAndVerifyGeneration(testDir: String,
+                                      template: String,
+                                      inFile: String,
+                                      mainFirstArg: Option[String],
+                                      outDir: String,
+                                      outFile: Option[String],
+                                      expected: String,
+                                      args: String*) {
     ensureTestDirIsEmpty(testDir)
 
     val templateFilePath = testDir + "/" + inFile

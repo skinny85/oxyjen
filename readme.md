@@ -1,2 +1,2 @@
-Oxidize - lightweight code generation
-=====================================
+Oxyjen - lightweight code generation
+====================================
