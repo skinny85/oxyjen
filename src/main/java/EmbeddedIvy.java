@@ -12,17 +12,10 @@ import java.io.IOException;
 import java.text.ParseException;
 
 public class EmbeddedIvy {
-    public static File resolveArtifact(String groupId, String artifactId, String version) throws IOException, ParseException {
+    public static File resolveArtifact(String groupId, String artifactId, String version)
+            throws IOException, ParseException {
         //creates clear ivy settings
         IvySettings ivySettings = new IvySettings();
-
-        //url resolver for configuration of maven repo
-//        URLResolver resolver = new URLResolver();
-//        resolver.setM2compatible(true);
-//        resolver.setName("central");
-//        //you can specify the url resolution pattern strategy
-//        resolver.addArtifactPattern(
-//                "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]");
 
         IBiblioResolver resolver = new IBiblioResolver();
         resolver.setM2compatible(true);
@@ -40,7 +33,7 @@ public class EmbeddedIvy {
 
         DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(
                 md,
-                ModuleRevisionId.newInstance(groupId, artifactId, version),
+                ModuleRevisionId.newInstance(groupId, artifactId, "latest.release"),
                 false, false, true);
         dd.addDependencyConfiguration("default", "default");
 
