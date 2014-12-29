@@ -1,8 +1,11 @@
 package org.oxyjen
 
 import java.io.File
+import java.nio.file.Files
 
+import net.lingala.zip4j.core.ZipFile
 import org.apache.commons.io.FileUtils
+import org.oxyjen.ivy.IvyResolver
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -21,11 +24,28 @@ object Main {
       errLog warn USAGE
       return 1
     }
-    val template = args(0)
+    val template = getTemplatePath(args(0))
     val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
 
     applyTemplate(template, targetDir, context)
     0
+  }
+
+  def getTemplatePath(arg: String): String = {
+    def looksLikeExternalDependency(arg: String) = arg.contains(":")
+    if (looksLikeExternalDependency(arg)) {
+      val parts = arg.split(":")
+      val groupId = if (parts(0).isEmpty) "oxyjen" else parts(0)
+      val artifactId = parts(1)
+      val version = if (parts.length > 2) parts(2) else "latest.release"
+      val artifact = IvyResolver.resolve(groupId, artifactId, version)
+      val tempDir = Files.createTempDirectory("oxyjen").toFile.getPath
+      val zipFile = new ZipFile(artifact.get)
+      zipFile.extractAll(tempDir)
+      tempDir
+    } else {
+      arg
+    }
   }
 
   def parseTargetDirAndContext(args: Seq[String]): (String, Map[String, Any]) = {
