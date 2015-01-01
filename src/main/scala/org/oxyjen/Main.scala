@@ -33,16 +33,27 @@ object Main {
 
   def getTemplatePath(arg: String): String = {
     def looksLikeExternalDependency(arg: String) = arg.contains(":")
+
+    def deleteOnExit(tempDir: File) {
+      Runtime.getRuntime.addShutdownHook(new Thread(new Runnable() {
+          def run(): Unit = {
+            FileUtils.deleteDirectory(tempDir)
+          }
+        }
+      ))
+    }
+
     if (looksLikeExternalDependency(arg)) {
       val parts = arg.split(":")
       val groupId = if (parts(0).isEmpty) "oxyjen" else parts(0)
       val artifactId = parts(1)
       val version = if (parts.length > 2) parts(2) else "latest.release"
       val artifact = IvyResolver.resolve(groupId, artifactId, version)
-      val tempDir = Files.createTempDirectory("oxyjen").toFile.getPath
+      val tempDir = Files.createTempDirectory("oxyjen").toFile
+      deleteOnExit(tempDir)
       val zipFile = new ZipFile(artifact.get)
-      zipFile.extractAll(tempDir)
-      tempDir
+      zipFile.extractAll(tempDir.getPath)
+      tempDir.getPath
     } else {
       arg
     }
