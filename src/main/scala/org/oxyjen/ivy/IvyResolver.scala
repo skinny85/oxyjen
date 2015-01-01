@@ -36,7 +36,7 @@ object IvyResolver {
     val resolver = new IBiblioResolver
     resolver.setM2compatible(true)
     resolver.setName(RESOLVER_NAME)
-    resolver.setRoot(s"http://localhost:8081/artifactory/$RESOLVER_NAME")
+    resolver.setRoot(s"http://oxyjen-artifactory.bitnamiapp.com/artifactory/$RESOLVER_NAME")
     val ivySettings = new IvySettings
     ivySettings.addResolver(resolver)
     ivySettings.setDefaultResolver(RESOLVER_NAME)
