@@ -1,3 +1,6 @@
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
+
 name := "oxyjen"
 
 version := "0.1"
@@ -10,3 +13,5 @@ libraryDependencies ++= Seq(
   "org.apache.ivy" % "ivy" % "2.3.0",
   "net.lingala.zip4j" % "zip4j" % "1.3.2",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test")
+
+packageArchetype.java_application
