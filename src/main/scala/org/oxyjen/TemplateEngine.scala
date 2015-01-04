@@ -1,5 +1,6 @@
 package org.oxyjen
 
+import java.io.File
 import java.util.regex.Pattern
 import javax.script.{ScriptContext, SimpleScriptContext, ScriptEngineManager}
 import scala.util.Properties
@@ -38,6 +39,12 @@ class OxyjenJsObject(var fileName: String) {
   def setFileName(path: String): Unit = {
     println(s"$$o2.setFileName('$path') called")
     fileName = path
+  }
+
+  def setFileDir(dir: String): Unit = {
+    val currentFile = new File(fileName)
+    val newFile = new File(dir, currentFile.getName)
+    fileName = newFile.getPath
   }
 }
 

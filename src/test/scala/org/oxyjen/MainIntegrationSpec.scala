@@ -146,7 +146,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       String.format(classFormat,
         """@{
           |        var pathParts = groupId.split('.');
-          |        $o2.setFileName(pathParts.join('/') + '/ExampleClass.java');
+          |        $o2.setFileDir(pathParts.join('/'));
           |}@
           |""".stripMargin,
         "@{= groupId }@"))
