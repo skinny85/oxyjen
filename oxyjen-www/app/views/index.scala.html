@@ -1,7 +1,91 @@
 @(message: String)
 
 @templates.main("Welcome to Play") {
+    @*<nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input type="text" placeholder="Email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" placeholder="Password" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-success">Sign in</button>
+                </form>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>*@
 
-    @play20.welcome(message)
+    <div class="jumbotron">
+        <div class="container">
+            <img src="@routes.Assets.at("images/oxyjen-logo.png")" alt="oxyjen-logo">
+            <p class="text-justify">
+                Oxyjen (pronounced 'oxygen') is a lightweight, easy to use and powerful
+                templating engine and code generation tool. It enables quick and
+                boilerplate-less early development while giving you access to the full
+                power of a programming language should you need it.
+                With <a href="#">OxyjenZone</a>, a hosted public repository service, you
+                have thousands of ready-made templates at your disposal, and can effortlessly
+                share your own.
+            </p>
+            <p>
+                <a class="btn btn-primary btn-lg" href="#" role="button"> Learn more &raquo;</a>
+            </p>
+        </div>
+    </div>
 
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Easy install</h2>
+                <p>
+                    Installing Oxyjen is incredibly easy. Just <a href="#">download the latest
+                    release</a>, unzip it anywhere on your computer, and you're done!
+                    You can optionally add it to your system's PATH for convenience. Detailed
+                    instructions are <a href="#">given below</a>.
+                </p>
+                <p>
+                    <a class="btn btn-default" href="#" role="button">View details &raquo;</a>
+                </p>
+            </div>
+
+            <div class="col-md-4">
+                <h2>Built for usability and power</h2>
+                <p>
+                    Oxyjen was built from the ground up to be easy to use. However, that does
+                    not take away anything from its power. By leveraging JavaScript,
+                    a fully-fledged programming language, it makes easy things almost trivial,
+                    and hard things possible. <a href="#">Learn how easy it is to use.</a>
+                </p>
+                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+            </div>
+
+            <div class="col-md-4">
+                <h2>Download & share in the Cloud</h2>
+                <p>
+                    Thanks to <a href="#">OxyjenZone</a> (OZone in short), you can
+                    immediately leverage thousands of templates created by the Oxyjen
+                    community. It also makes sharing your own super easy.
+                    <a href="#">Sign up now</a> - it's absolutely free.
+                </p>
+                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+            </div>
+        </div>
+
+        <hr>
+
+        <footer>
+            <p>&copy; 2015 Adam Ruka</p>
+        </footer>
+    </div> <!-- /container -->
 }
