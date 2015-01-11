@@ -16,7 +16,7 @@
             <p>
                 Create a new Organization
             </p>
-            <form action="@routes.OzoneApplication.registerPost()" method="post">
+            <form action="@routes.RegisterCtrl.registerPost()" method="post">
                 <div class="form-group">
                     <label for="orgId">Organization ID</label>
                     <input name="orgId" type="text" id="orgId" placeholder="Organization ID" class="form-control" value="@(userForm("orgId").value)">
