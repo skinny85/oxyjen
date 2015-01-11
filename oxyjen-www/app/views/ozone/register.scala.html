@@ -1,0 +1,28 @@
+@(userForm: Form[String])
+
+@templates.main("OxyjenZone | Register") {
+    <form action="@routes.OzoneApplication.registerPost()" method="post">
+        <div class="form-group">
+            <label for="orgId">Organization ID</label>
+            <input name="orgId" type="text" id="orgId" placeholder="Organization ID" class="form-control">
+            @defining(userForm.error("orgId")) { orgIdError =>
+                @if(orgIdError.isDefined) {
+                    <span class="label label-warning">@orgIdError.get.message</span>
+                }
+            }
+            @* @helper.inputText(userForm("orgId"), 'id -> "orgId", 'placeholder -> "Organization ID", 'class -> "form-control")*@
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Password" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="repeat-password">Repeat password</label>
+            <input type="password" id="repeat-password" placeholder="Repeat password" class="form-control">
+        </div>
+        <input type="submit" class="btn btn-success" value="Register">
+        <div class="form-group">
+            Already have an account? <a href="#">Sign in here</a>
+        </div>
+    </form>
+}
