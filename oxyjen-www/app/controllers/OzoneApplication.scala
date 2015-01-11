@@ -21,14 +21,15 @@ object OzoneApplication extends Controller {
   }
 
   def registerPost = Action(implicit request => {
-    val userData = singleForm.bindFromRequest()
-    val orgId: String = userData.get // no constraints, so this will always succeed
+    val boundForm = singleForm.bindFromRequest()
+    val orgId: String = boundForm.get // no constraints, so this will always succeed
     Logger.info("submitted orgId = '" + orgId + "'")
 
+    //    val filledForm = singleForm.fill(orgId)
     val form = if (orgId == "xxxx")
-      singleForm.withError(FormError("orgId", "organization ID can't be 'xxxx', you jackass!"))
+      boundForm.withError(FormError("orgId", "organization ID can't be 'xxxx', you jackass!"))
     else
-      singleForm
+      boundForm
 
     Ok(views.html.ozone.register(form))
   })
