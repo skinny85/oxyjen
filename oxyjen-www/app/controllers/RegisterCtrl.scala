@@ -6,27 +6,33 @@ import play.api.data._
 import play.api.mvc._
 
 object RegisterCtrl extends Controller {
-  val singleForm = Form(
-    single(
-      "orgId" -> text
-    )
+  case class RegisterViewModel(orgId: String, password: String, password2: String)
+
+  val registerForm = Form(
+    mapping(
+      "orgId" -> text,
+      "password" -> text,
+      "password2" -> text
+    )(RegisterViewModel.apply)(RegisterViewModel.unapply)
   )
 
   def register = Action {
-    Ok(views.html.ozone.register(singleForm))
+    Ok(views.html.ozone.register(registerForm))
   }
 
   def registerPost = Action(implicit request => {
-    val boundForm = singleForm.bindFromRequest()
-    val orgId: String = boundForm.get // no constraints, so this will always succeed
-    Logger.info("submitted orgId = '" + orgId + "'")
+    val boundForm = registerForm.bindFromRequest()
+    val registerViewModel = boundForm.get
+    Logger.info("submitted values = '" + registerViewModel + "'")
 
-    //    val filledForm = singleForm.fill(orgId)
-    val form = if (orgId == "xxxx")
-      boundForm.withError(FormError("orgId", "organization ID can't be 'xxxx', you jackass!"))
-    else
-      boundForm
+    var returnForm = boundForm
+    if (registerViewModel.orgId == "xxxx")
+      returnForm = returnForm.withError(FormError("orgId", "organization ID can't be 'xxxx', you jackass!"))
+    if (registerViewModel.password != registerViewModel.password2)
+      returnForm = returnForm
+        .withError(FormError("password2", "Passwords do not match"))
+        .fill(registerViewModel.copy(password2 = ""))
 
-    Ok(views.html.ozone.register(form))
+    Ok(views.html.ozone.register(returnForm))
   })
 }

@@ -1,4 +1,4 @@
-@(userForm: Form[String])
+@(registerForm: Form[RegisterCtrl.RegisterViewModel])
 
 @templates.main("OxyjenZone | Register") {
     <div class="jumbotron">
@@ -19,20 +19,32 @@
             <form action="@routes.RegisterCtrl.registerPost()" method="post">
                 <div class="form-group">
                     <label for="orgId">Organization ID</label>
-                    <input name="orgId" type="text" id="orgId" placeholder="Organization ID" class="form-control" value="@(userForm("orgId").value)">
-                    @ozone.form_field_error(userForm.error("orgId"))
-                    @* @helper.inputText(userForm("orgId"), 'id -> "orgId", 'placeholder -> "Organization ID", 'class -> "form-control")*@
+                    <input name="orgId" type="text" id="orgId" placeholder="Organization ID"
+                        class="form-control" value="@(registerForm("orgId").value)">
+                    @ozone.form_field_error(registerForm.error("orgId"))
+                    @* @helper.inputText(userForm("orgId"), 'id -> "orgId",
+                        'placeholder -> "Organization ID", 'class -> "form-control")*@
                 </div>
+
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Password" class="form-control">
+                    <input name="password" type="password" id="password"
+                        placeholder="Password" class="form-control"
+                        value="@(registerForm("password").value)">
+                    @ozone.form_field_error(registerForm.error("password"))
                 </div>
+
                 <div class="form-group">
                     <label for="repeat-password">Repeat password</label>
-                    <input type="password" id="repeat-password" placeholder="Repeat password" class="form-control">
+                    <input name="password2" type="password" id="repeat-password"
+                        placeholder="Repeat password" class="form-control"
+                        value="@(registerForm("password2").value)">
+                    @ozone.form_field_error(registerForm.error("password2"))
                 </div>
+
                 <input type="submit" class="btn btn-success" value="Register">
                 <a href="@routes.OzoneApplication.index()" class="btn btn-warning">Cancel</a>
+
                 <div class="form-group">
                     Already have an account? <a href="#">Sign in here</a>
                 </div>
