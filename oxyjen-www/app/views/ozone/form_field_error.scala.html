@@ -1,0 +1,5 @@
+@(error: Option[FormError])
+
+@if(error.isDefined) {
+    <span class="text-danger">@error.get.message</span>
+}
