@@ -20,7 +20,7 @@
                 <div class="form-group">
                     <label for="orgId">Organization ID</label>
                     <input name="orgId" type="text" id="orgId" placeholder="Organization ID"
-                        class="form-control" value="@(registerForm("orgId").value)">
+                        class="form-control" value="@registerForm("orgId").value">
                     @ozone.form_field_error(registerForm.error("orgId"))
                     @* @helper.inputText(userForm("orgId"), 'id -> "orgId",
                         'placeholder -> "Organization ID", 'class -> "form-control")*@
@@ -30,7 +30,7 @@
                     <label for="password">Password</label>
                     <input name="password" type="password" id="password"
                         placeholder="Password" class="form-control"
-                        value="@(registerForm("password").value)">
+                        value="@registerForm("password").value">
                     @ozone.form_field_error(registerForm.error("password"))
                 </div>
 
@@ -38,7 +38,7 @@
                     <label for="repeat-password">Repeat password</label>
                     <input name="password2" type="password" id="repeat-password"
                         placeholder="Repeat password" class="form-control"
-                        value="@(registerForm("password2").value)">
+                        value="@registerForm("password2").value">
                     @ozone.form_field_error(registerForm.error("password2"))
                 </div>
 
