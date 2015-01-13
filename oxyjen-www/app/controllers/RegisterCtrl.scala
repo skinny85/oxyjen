@@ -1,5 +1,6 @@
 package controllers
 
+import models.{ConstraintViolation, Registration}
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
@@ -8,7 +9,7 @@ import play.api.mvc._
 object RegisterCtrl extends Controller {
   case class RegisterViewModel(orgId: String, password: String, password2: String)
 
-  val registerForm = Form(
+  private val registerForm = Form(
     mapping(
       "orgId" -> text,
       "password" -> text,
@@ -25,9 +26,13 @@ object RegisterCtrl extends Controller {
     val registerViewModel = boundForm.get
     Logger.info("submitted values = '" + registerViewModel + "'")
 
+    val maybeViolations = Registration.validate(registerViewModel.orgId, registerViewModel.password)
+
     var returnForm = boundForm
-    if (registerViewModel.orgId == "xxxx")
-      returnForm = returnForm.withError(FormError("orgId", "organization ID can't be 'xxxx', you jackass!"))
+    if (maybeViolations.isDefined) {
+      for (violation <- maybeViolations.get)
+        returnForm = returnForm.withError(translateViolation(violation))
+    }
     if (registerViewModel.password != registerViewModel.password2)
       returnForm = returnForm
         .withError(FormError("password2", "Passwords do not match"))
@@ -35,4 +40,7 @@ object RegisterCtrl extends Controller {
 
     Ok(views.html.ozone.register(returnForm))
   })
+
+  private def translateViolation(violation: ConstraintViolation): FormError =
+    FormError(violation.property, violation.message)
 }
