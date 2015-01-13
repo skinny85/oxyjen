@@ -10,5 +10,6 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws
+  ws,
+  "com.github.t3hnar" %% "scala-bcrypt" % "2.4"
 )

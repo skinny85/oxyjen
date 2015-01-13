@@ -3,12 +3,13 @@
 # ~~~~
 
 # Home page
-GET         /                      controllers.Application.index
+GET         /                              controllers.Application.index
 
-GET         /ozone                 controllers.OzoneApplication.index
-GET         /ozone/register        controllers.RegisterCtrl.register
-POST        /ozone/register        controllers.RegisterCtrl.registerPost
+GET         /ozone                         controllers.OzoneApplication.index
+GET         /ozone/register                controllers.RegisterCtrl.register
+POST        /ozone/register                controllers.RegisterCtrl.registerPost
+GET         /ozone/register/success        controllers.RegisterCtrl.success
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file          controllers.Assets.at(path="/public", file)
-#GET        /favicon               controllers.Assets.at(path="/public", file="images/favicon.png")
+GET         /assets/*file                  controllers.Assets.at(path="/public", file)
+#GET         /favicon                       controllers.Assets.at(path="/public", file="images/favicon.png")

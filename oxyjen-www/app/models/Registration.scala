@@ -5,12 +5,8 @@ import play.api.db.DB
 import play.api.Play.current
 
 object Registration {
-  def register(orgId: String, password: String): Unit = {
-
-  }
-
   def validate(orgId: String, password: String): Option[ConstraintViolations] = {
-    var ret: ConstraintViolations = Seq.empty
+    var ret: Seq[ConstraintViolation] = Seq.empty
 
     def addOrgIdViolation(message: String ) {
       ret = ret :+ ConstraintViolation("orgId", message)
@@ -40,8 +36,30 @@ object Registration {
       addPasswordViolation("Password cannot be empty")
     } else if (password.length < 3) {
       addPasswordViolation("Password must be at least 3 characters long")
+    } else if (password.length > 100) {
+      addPasswordViolation("Password can be at most 100 characters long")
     }
 
     ConstraintViolations(ret)
   }
+
+  def register(orgId: String, password: String): RegistrationResult = {
+    validate(orgId, password) match {
+      case Some(violations) => InvalidArguments(violations)
+      case None =>
+        val salt = Crypto.generateSalt()
+        val hash = Crypto.bcrypt(password, salt)
+        var id: Option[Long] = None
+        DB.withConnection { implicit c =>
+          id = SQL"""
+            INSERT INTO Organization (org_id, salt, password) VALUES
+              ($orgId, $salt, $hash)""".executeInsert()
+        }
+        SuccessfulRegistration(id.get)
+    }
+  }
 }
+
+sealed abstract class RegistrationResult
+case class SuccessfulRegistration(id: Long) extends RegistrationResult
+case class InvalidArguments(violations: ConstraintViolations) extends RegistrationResult
