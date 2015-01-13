@@ -1,10 +1,10 @@
 package controllers
 
-import models.{ConstraintViolation, Registration}
-import play.api.Logger
-import play.api.data.Forms._
-import play.api.data._
 import play.api.mvc._
+import play.api.data._
+import play.api.data.Forms._
+
+import models.{ConstraintViolation, Registration}
 
 object RegisterCtrl extends Controller {
   case class RegisterViewModel(orgId: String, password: String, password2: String)
@@ -24,7 +24,6 @@ object RegisterCtrl extends Controller {
   def registerPost = Action(implicit request => {
     val boundForm = registerForm.bindFromRequest()
     val registerViewModel = boundForm.get
-    Logger.info("submitted values = '" + registerViewModel + "'")
 
     val maybeViolations = Registration.validate(registerViewModel.orgId, registerViewModel.password)
 

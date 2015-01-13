@@ -1,5 +1,9 @@
 package models
 
+import anorm._
+import play.api.db.DB
+import play.api.Play.current
+
 object Registration {
   def register(orgId: String, password: String): Unit = {
 
@@ -20,6 +24,12 @@ object Registration {
       addOrgIdViolation("Organization ID can be at most 100 characters long")
     } else if (orgId == "xxxx") {
       addOrgIdViolation("Organization ID can't be 'xxxx', you jackass!")
+    } else {
+      DB.withConnection { implicit c =>
+        val result = SQL"SELECT org_id FROM Organization WHERE org_id = $orgId"()
+        if (result.nonEmpty)
+          addOrgIdViolation("An organization with that ID already exists")
+      }
     }
 
     def addPasswordViolation(message: String) {
