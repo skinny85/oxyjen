@@ -7,13 +7,23 @@ import play.api.db.DB
 import play.api.Play.current
 
 object OrganizationRepository {
+  protected[models] def doFind(orgId: String)(implicit c: Connection): Option[Organization] = {
+    val rows = SQL"SELECT * FROM Organization WHERE org_id = $orgId"()
+    if (rows.isEmpty)
+      None
+    else {
+      val firstRow = rows.head
+      Some(Organization(firstRow[Long]("id"), firstRow[String]("org_id"), firstRow[String]("password"), firstRow[String]("salt")))
+    }
+  }
+
   def validate(orgId: String, password: String): Option[ConstraintViolations] =
     DB.withConnection(doValidate(orgId, password)(_))
 
   def create(orgId: String, password: String): OrgCreationResult =
     DB.withConnection(doCreate(orgId, password)(_))
 
-  private def doValidate(orgId: String, password: String)(implicit conn: Connection): Option[ConstraintViolations] = {
+  protected[models] def doValidate(orgId: String, password: String)(implicit c: Connection): Option[ConstraintViolations] = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
     def addOrgIdViolation(message: String ) {
@@ -49,7 +59,7 @@ object OrganizationRepository {
     ConstraintViolations(ret)
   }
 
-  private def doCreate(orgId: String, password: String)(implicit conn: Connection): OrgCreationResult = {
+  protected[models] def doCreate(orgId: String, password: String)(implicit c: Connection): OrgCreationResult = {
     doValidate(orgId, password) match {
       case Some(violations) => InvalidArguments(violations)
       case None =>
