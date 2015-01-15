@@ -30,17 +30,17 @@ object RegisterCtrl extends Controller {
         .withError(FormError("password2", "Passwords do not match"))
         .fill(registerViewModel.copy(password2 = ""))
 
-      val maybeViolations = Registration.validate(registerViewModel.orgId,
+      val maybeViolations = OrganizationRepository.validate(registerViewModel.orgId,
         registerViewModel.password)
       if (maybeViolations.isDefined)
           returnForm = addViolations(maybeViolations.get, returnForm)
 
       Ok(views.html.ozone.register(returnForm))
     } else {
-      Registration.register(registerViewModel.orgId, registerViewModel.password) match {
+      OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
         case InvalidArguments(violations) =>
           Ok(views.html.ozone.register(addViolations(violations, boundForm)))
-        case SuccessfulRegistration(id) =>
+        case SuccessfulOrgCreation(id) =>
           Redirect(routes.RegisterCtrl.success())
       }
     }

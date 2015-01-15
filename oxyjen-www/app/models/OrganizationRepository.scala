@@ -1,11 +1,19 @@
 package models
 
+import java.sql.Connection
+
 import anorm._
 import play.api.db.DB
 import play.api.Play.current
 
-object Registration {
-  def validate(orgId: String, password: String): Option[ConstraintViolations] = {
+object OrganizationRepository {
+  def validate(orgId: String, password: String): Option[ConstraintViolations] =
+    DB.withConnection(doValidate(orgId, password)(_))
+
+  def create(orgId: String, password: String): OrgCreationResult =
+    DB.withConnection(doCreate(orgId, password)(_))
+
+  private def doValidate(orgId: String, password: String)(implicit conn: Connection): Option[ConstraintViolations] = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
     def addOrgIdViolation(message: String ) {
@@ -21,11 +29,9 @@ object Registration {
     } else if (orgId == "xxxx") {
       addOrgIdViolation("Organization ID can't be 'xxxx', you jackass!")
     } else {
-      DB.withConnection { implicit c =>
-        val result = SQL"SELECT org_id FROM Organization WHERE org_id = $orgId"()
-        if (result.nonEmpty)
-          addOrgIdViolation("An organization with that ID already exists")
-      }
+      val result = SQL"SELECT org_id FROM Organization WHERE org_id = $orgId"()
+      if (result.nonEmpty)
+        addOrgIdViolation("An organization with that ID already exists")
     }
 
     def addPasswordViolation(message: String) {
@@ -43,23 +49,20 @@ object Registration {
     ConstraintViolations(ret)
   }
 
-  def register(orgId: String, password: String): RegistrationResult = {
-    validate(orgId, password) match {
+  private def doCreate(orgId: String, password: String)(implicit conn: Connection): OrgCreationResult = {
+    doValidate(orgId, password) match {
       case Some(violations) => InvalidArguments(violations)
       case None =>
         val salt = Crypto.generateSalt()
-        val hash = Crypto.bcrypt(password, salt)
-        var id: Option[Long] = None
-        DB.withConnection { implicit c =>
-          id = SQL"""
+        val hashedPassword = Crypto.bcrypt(password, salt)
+        val id: Option[Long] = SQL"""
             INSERT INTO Organization (org_id, salt, password) VALUES
-              ($orgId, $salt, $hash)""".executeInsert()
-        }
-        SuccessfulRegistration(id.get)
+              ($orgId, $salt, $hashedPassword)""".executeInsert()
+        SuccessfulOrgCreation(id.get)
     }
   }
 }
 
-sealed abstract class RegistrationResult
-case class SuccessfulRegistration(id: Long) extends RegistrationResult
-case class InvalidArguments(violations: ConstraintViolations) extends RegistrationResult
+sealed abstract class OrgCreationResult
+case class SuccessfulOrgCreation(id: Long) extends OrgCreationResult
+case class InvalidArguments(violations: ConstraintViolations) extends OrgCreationResult
