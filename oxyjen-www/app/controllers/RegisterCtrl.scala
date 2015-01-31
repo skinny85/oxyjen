@@ -42,7 +42,7 @@ object RegisterCtrl extends Controller {
           Ok(views.html.ozone.register(returnForm))
         } else {
           OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
-            case InvalidArguments(violations) =>
+            case InvalidOrgArguments(violations) =>
               Ok(views.html.ozone.register(addViolations(violations, boundForm)))
             case SuccessfulOrgCreation(id) =>
               Redirect(routes.RegisterCtrl.success())

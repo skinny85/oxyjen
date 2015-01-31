@@ -61,7 +61,7 @@ object OrganizationRepository {
 
   protected[models] def doCreate(orgId: String, password: String)(implicit c: Connection): OrgCreationResult = {
     doValidate(orgId, password) match {
-      case Some(violations) => InvalidArguments(violations)
+      case Some(violations) => InvalidOrgArguments(violations)
       case None =>
         val salt = Crypto.generateSalt()
         val hashedPassword = Crypto.bcrypt(password, salt)
@@ -75,4 +75,4 @@ object OrganizationRepository {
 
 sealed abstract class OrgCreationResult
 case class SuccessfulOrgCreation(id: Long) extends OrgCreationResult
-case class InvalidArguments(violations: ConstraintViolations) extends OrgCreationResult
+case class InvalidOrgArguments(violations: ConstraintViolations) extends OrgCreationResult
