@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import models._
 
 object RegisterCtrl extends Controller {
+
   case class RegisterViewModel(orgId: String, password: String, password2: String)
 
   private val registerForm = Form(
@@ -23,27 +24,32 @@ object RegisterCtrl extends Controller {
 
   def registerPost = Action(implicit request => {
     val boundForm = registerForm.bindFromRequest()
-    val registerViewModel = boundForm.get // should always succeed because there are no constraints
+    boundForm.fold(
+      formWithErrors => {
+        BadRequest(views.html.ozone.register(formWithErrors))
+      },
+      registerViewModel => {
+        if (registerViewModel.password != registerViewModel.password2) {
+          var returnForm = boundForm
+            .withError(FormError("password2", "Passwords do not match"))
+            .fill(registerViewModel.copy(password2 = ""))
 
-    if (registerViewModel.password != registerViewModel.password2) {
-      var returnForm = boundForm
-        .withError(FormError("password2", "Passwords do not match"))
-        .fill(registerViewModel.copy(password2 = ""))
+          val maybeViolations = OrganizationRepository.validate(registerViewModel.orgId,
+            registerViewModel.password)
+          if (maybeViolations.isDefined)
+            returnForm = addViolations(maybeViolations.get, returnForm)
 
-      val maybeViolations = OrganizationRepository.validate(registerViewModel.orgId,
-        registerViewModel.password)
-      if (maybeViolations.isDefined)
-          returnForm = addViolations(maybeViolations.get, returnForm)
-
-      Ok(views.html.ozone.register(returnForm))
-    } else {
-      OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
-        case InvalidArguments(violations) =>
-          Ok(views.html.ozone.register(addViolations(violations, boundForm)))
-        case SuccessfulOrgCreation(id) =>
-          Redirect(routes.RegisterCtrl.success())
+          Ok(views.html.ozone.register(returnForm))
+        } else {
+          OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
+            case InvalidArguments(violations) =>
+              Ok(views.html.ozone.register(addViolations(violations, boundForm)))
+            case SuccessfulOrgCreation(id) =>
+              Redirect(routes.RegisterCtrl.success())
+          }
+        }
       }
-    }
+    )
   })
 
   def success = Action {
