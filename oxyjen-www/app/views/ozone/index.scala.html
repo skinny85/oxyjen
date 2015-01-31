@@ -14,7 +14,7 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <form class="navbar-form navbar-right" method="post"
-                        action="@routes.OzoneApplication.login()">
+                        action="@routes.MainOzoneCtrl.login()">
                     <div class="form-group">
                         <input name="orgId" type="text" placeholder="Organization ID" class="form-control">
                     </div>
@@ -36,18 +36,18 @@
             <h1>OxyjenZone</h1>
             <p>
                 Free online service for downloading and sharing
-                <a href="@routes.Application.index()">Oxyjen</a> templates
+                <a href="@routes.MainCtrl.index()">Oxyjen</a> templates
             </p>
             <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
         </div>
     </div>
 
     <div class="container">
-        @if(flash.get("message").isDefined) {
-            <p class="bg-success">@flash.get("message").get</p>
-        }
         @if(flash.get("warning").isDefined) {
             <p class="bg-warning">@flash.get("warning").get</p>
+        }
+        @if(flash.get("message").isDefined) {
+            <p class="bg-success">@flash.get("message").get</p>
         }
 
         <div class="row">
