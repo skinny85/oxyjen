@@ -7,12 +7,6 @@ import play.api.libs.functional.syntax._
 import models._
 
 object JsonApiCtrl extends Controller {
-
-  def testJson = Action { implicit  request =>
-    val json = Json.obj("key" -> "val")
-    Ok(json)
-  }
-
   case class RegisterJson(orgId: String, password: String)
 
   implicit val registerJsonReads: Reads[RegisterJson] = (
