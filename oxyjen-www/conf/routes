@@ -5,7 +5,7 @@
 # Home page
 GET         /                              controllers.MainCtrl.index
 
-GET         /ozone                         controllers.MainOzoneCtrl.index
+GET         /ozone                         controllers.MainOzoneCtrl.index(orgId ?= "")
 GET         /ozone/register                controllers.RegisterCtrl.register
 POST        /ozone/register                controllers.RegisterCtrl.registerPost
 
