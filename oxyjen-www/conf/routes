@@ -8,7 +8,6 @@ GET         /                              controllers.MainCtrl.index
 GET         /ozone                         controllers.MainOzoneCtrl.index
 GET         /ozone/register                controllers.RegisterCtrl.register
 POST        /ozone/register                controllers.RegisterCtrl.registerPost
-GET         /ozone/register/success        controllers.RegisterCtrl.success
 
 POST        /ozone/login                   controllers.MainOzoneCtrl.login
 

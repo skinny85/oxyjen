@@ -45,16 +45,12 @@ object RegisterCtrl extends Controller {
             case InvalidOrgArguments(violations) =>
               Ok(views.html.ozone.register(addViolations(violations, boundForm)))
             case SuccessfulOrgCreation(id) =>
-              Redirect(routes.RegisterCtrl.success())
+              Redirect(routes.MainOzoneCtrl.index()).flashing(("message" -> "Organization created"))
           }
         }
       }
     )
   })
-
-  def success = Action {
-    Ok(views.html.ozone.register_success())
-  }
 
   private def addViolations(violations: ConstraintViolations,
                             form: Form[RegisterViewModel]): Form[RegisterViewModel] = {
