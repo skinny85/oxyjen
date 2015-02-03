@@ -17,15 +17,27 @@ object OzoneSecurity {
       NoSuchOrg
     else {
       val org = maybeOrg.get
-      if (Crypto.checkPassword(password, org.hashedPassword))
-        SuccessfulLogin("token")
+      if (verifyPassword(password, org))
+        SuccessfulLogin(SessionRepository.doCreateSession(orgId))
       else
         WrongPassword
     }
   }
+
+  private def verifyPassword(password: String, org: Organization): Boolean = {
+    Crypto.checkPassword(password, org.hashedPassword)
+  }
+
+  def verifyToken(tksid: String): Option[Organization] = {
+    SessionRepository.findOrgForSession(tksid)
+  }
+
+  def invalidateToken(tksid: String): Boolean = {
+    SessionRepository.removeSession(tksid)
+  }
 }
 
 sealed abstract class LoginResult
-case class SuccessfulLogin(token: String) extends LoginResult
+case class SuccessfulLogin(tksid: String) extends LoginResult
 case object NoSuchOrg extends LoginResult
 case object WrongPassword extends LoginResult

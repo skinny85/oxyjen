@@ -1,5 +1,6 @@
 package models
 
+import java.math.BigInteger
 import java.security.SecureRandom
 
 import org.mindrot.jbcrypt.BCrypt
@@ -14,4 +15,6 @@ object Crypto {
   def bcrypt(password: String, salt: String) = BCrypt.hashpw(password, salt)
 
   def checkPassword(plaintext: String, hashed: String) = BCrypt.checkpw(plaintext, hashed)
+  
+  def randomHash() = new BigInteger(130, RNG).toString(32)
 }

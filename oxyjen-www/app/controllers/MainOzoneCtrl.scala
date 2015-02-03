@@ -4,6 +4,8 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
+import controllers.util.SecurityUtil
+
 import models._
 
 object MainOzoneCtrl extends Controller {
@@ -17,23 +19,34 @@ object MainOzoneCtrl extends Controller {
   )
   
   def index(orgId: String = "") = Action { implicit request =>
-    Ok(views.html.ozone.index(loginForm.fill(LoginViewModel(orgId, ""))))
+    val viewParam = SecurityUtil.loggedIn() match {
+      case Some(org) =>
+        Left(org)
+      case None =>
+        Right(loginForm.fill(LoginViewModel(orgId, "")))
+    }
+    Ok(views.html.ozone.index(viewParam))
   }
 
   def login = Action { implicit request =>
     val boundLoginForm = loginForm.bindFromRequest()
     boundLoginForm.fold(
       loginFormWithErrors => {
-        BadRequest(views.html.ozone.index(loginFormWithErrors))
+        BadRequest(views.html.ozone.index(Right(loginFormWithErrors)))
       },
       loginFormViewModel => {
         OzoneSecurity.login(loginFormViewModel.orgId, loginFormViewModel.password) match {
-          case SuccessfulLogin(_) =>
-            Redirect(routes.MainOzoneCtrl.index()).flashing(("message", "You have been logged in"))
+          case SuccessfulLogin(tksid) =>
+            Redirect(routes.MainOzoneCtrl.index())
+              .withSession("tksid" -> tksid)
           case NoSuchOrg | WrongPassword =>
             Redirect(routes.MainOzoneCtrl.index(loginFormViewModel.orgId)).flashing(("warning", "Wrong credentials"))
         }
       }
     )
+  }
+  
+  def logout = Action { implicit request =>
+    SecurityUtil.logout(routes.MainOzoneCtrl.index())
   }
 }

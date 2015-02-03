@@ -10,6 +10,7 @@ GET         /ozone/register                controllers.RegisterCtrl.register
 POST        /ozone/register                controllers.RegisterCtrl.registerPost
 
 POST        /ozone/login                   controllers.MainOzoneCtrl.login
+POST        /ozone/logout                  controllers.MainOzoneCtrl.logout
 
 POST        /ozone/api/register            controllers.JsonApiCtrl.register
 
