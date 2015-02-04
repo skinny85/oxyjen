@@ -9,6 +9,8 @@ GET         /ozone                     controllers.MainOzoneCtrl.index(orgId ?= 
 GET         /ozone/register            controllers.RegisterCtrl.register
 POST        /ozone/register            controllers.RegisterCtrl.registerPost
 
+GET         /ozone/loginPage           controllers.MainOzoneCtrl.loginPage(orgId ?= "")
+POST        /ozone/loginPage           controllers.MainOzoneCtrl.loginPagePost
 POST        /ozone/login               controllers.MainOzoneCtrl.login
 POST        /ozone/logout              controllers.MainOzoneCtrl.logout
 

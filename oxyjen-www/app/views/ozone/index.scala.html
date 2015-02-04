@@ -58,12 +58,7 @@
     </div>
 
     <div class="container">
-        @if(flash.get("warning").isDefined) {
-            <p class="bg-warning">@flash.get("warning").get</p>
-        }
-        @if(flash.get("message").isDefined) {
-            <p class="bg-success">@flash.get("message").get</p>
-        }
+        @common.flash_bootstrap()
 
         <div class="row">
             <div class="col-md-4">

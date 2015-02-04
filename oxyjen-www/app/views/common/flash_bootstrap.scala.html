@@ -1,0 +1,11 @@
+@()(implicit flash: Flash)
+
+@if(flash.get("error").isDefined) {
+    <p class="bg-danger">@flash.get("error").get</p>
+}
+@if(flash.get("warning").isDefined) {
+    <p class="bg-warning">@flash.get("warning").get</p>
+}
+@if(flash.get("message").isDefined) {
+    <p class="bg-success">@flash.get("message").get</p>
+}
