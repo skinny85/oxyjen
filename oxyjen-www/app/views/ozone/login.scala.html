@@ -1,16 +1,6 @@
 @(orgId: String = "")(implicit flash: Flash)
 
-@templates.main("OxyjenZone | Sign in") {
-    <div class="jumbotron">
-        <div class="container">
-            <h1>OxyjenZone</h1>
-            <p>
-                Free online service for downloading and sharing
-                <a href="@routes.MainCtrl.index()">Oxyjen</a> templates
-            </p>
-        </div>
-    </div>
-
+@templates.ozone.jumbotron("OxyjenZone | Sign in") {
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
             <p>

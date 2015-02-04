@@ -63,7 +63,7 @@ object MainOzoneCtrl extends Controller {
       loginFormViewModel => {
         OzoneSecurity.login(loginFormViewModel.orgId, loginFormViewModel.password) match {
           case Some(tksid) =>
-            Redirect(routes.MainOzoneCtrl.index())
+            Redirect(routes.OrganizationCtrl.main())
               .withSession("tksid" -> tksid)
           case None =>
             Redirect(routes.MainOzoneCtrl.loginPage(loginFormViewModel.orgId))

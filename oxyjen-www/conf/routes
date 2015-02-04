@@ -3,20 +3,25 @@
 # ~~~~
 
 # Home page
-GET         /                          controllers.MainCtrl.index
+GET         /                            controllers.MainCtrl.index
 
-GET         /ozone                     controllers.MainOzoneCtrl.index(orgId ?= "")
-GET         /ozone/register            controllers.RegisterCtrl.register
-POST        /ozone/register            controllers.RegisterCtrl.registerPost
+GET         /ozone                       controllers.MainOzoneCtrl.index(orgId ?= "")
+GET         /ozone/register              controllers.RegisterCtrl.register
+POST        /ozone/register              controllers.RegisterCtrl.registerPost
 
-GET         /ozone/loginPage           controllers.MainOzoneCtrl.loginPage(orgId ?= "")
-POST        /ozone/loginPage           controllers.MainOzoneCtrl.loginPagePost
-POST        /ozone/login               controllers.MainOzoneCtrl.login
-POST        /ozone/logout              controllers.MainOzoneCtrl.logout
+GET         /ozone/loginPage             controllers.MainOzoneCtrl.loginPage(orgId ?= "")
+POST        /ozone/loginPage             controllers.MainOzoneCtrl.loginPagePost
+POST        /ozone/login                 controllers.MainOzoneCtrl.login
+POST        /ozone/logout                controllers.MainOzoneCtrl.logout
 
-POST        /ozone/api/register        controllers.JsonApiCtrl.register
-POST        /ozone/api/login           controllers.JsonApiCtrl.login
+GET         /ozone/profile               controllers.OrganizationCtrl.main
+GET         /ozone/profile/edit          controllers.OrganizationCtrl.edit
+GET         /ozone/profile/emails        controllers.OrganizationCtrl.emails
+GET         /ozone/profile/upload        controllers.OrganizationCtrl.upload
+
+POST        /ozone/api/register          controllers.JsonApiCtrl.register
+POST        /ozone/api/login             controllers.JsonApiCtrl.login
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file              controllers.Assets.at(path="/public", file)
+GET         /assets/*file                controllers.Assets.at(path="/public", file)
 #GET         /favicon                       controllers.Assets.at(path="/public", file="images/favicon.png")

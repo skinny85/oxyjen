@@ -1,0 +1,29 @@
+@(tab: OrganizationCtrl.MenuItemsEnum.MenuItem)(org: Organization)(content: Html)(implicit flash: Flash)
+
+@activeClass(menuItem: OrganizationCtrl.MenuItemsEnum.MenuItem) = @{
+    if (menuItem == tab) "active" else ""
+}
+
+@templates.ozone.jumbotron(s"OxyjenZone | Organization (${org.orgId})") {
+    <div class="container">
+        <div class="col-md-3">
+            <nav>
+                <ul class="nav nav-pills nav-stacked">
+                    <li class="@activeClass(OrganizationCtrl.MenuItemsEnum.Edit)">
+                        <a href="@routes.OrganizationCtrl.edit()">Edit</a>
+                    </li>
+                    <li class="@activeClass(OrganizationCtrl.MenuItemsEnum.Emails)">
+                        <a href="@routes.OrganizationCtrl.emails()">Attached e-mails</a>
+                    </li>
+                    <li class="@activeClass(OrganizationCtrl.MenuItemsEnum.Upload)">
+                        <a href="@routes.OrganizationCtrl.upload()">Upload</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-9">
+            @content
+        </div>
+    </div>
+}
