@@ -1,5 +1,13 @@
 @(org: Organization)(implicit flash: Flash)
 
 @templates.ozone.organization(OrganizationCtrl.MenuItemsEnum.Upload)(org) {
-    This is the upload organization panel.
+
+    @common.flash_bootstrap()
+
+    @helper.form(action = routes.OrganizationCtrl.handleUpload(), 'enctype -> "multipart/form-data") {
+        <input type="file" name="archive">
+        <p>
+            <input type="submit" value="Send">
+        </p>
+    }
 }
