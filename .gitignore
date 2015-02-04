@@ -9,4 +9,4 @@ target/
 todo.txt
 
 # Artifactory
-artifactory
+artifactory*
