@@ -7,20 +7,16 @@ import play.api.db.DB
 import play.api.Play.current
 
 object OzoneSecurity {
-  def login(orgId: String, password: String): LoginResult = {
+  def login(orgId: String, password: String): Option[String] = {
     DB.withConnection(doLogin(orgId, password)(_))
   }
 
-  private def doLogin(orgId: String, password: String)(implicit c: Connection): LoginResult = {
-    val maybeOrg = OrganizationRepository.doFind(orgId)
-    if (maybeOrg.isEmpty)
-      NoSuchOrg
-    else {
-      val org = maybeOrg.get
+  private def doLogin(orgId: String, password: String)(implicit c: Connection): Option[String] = {
+    OrganizationRepository.doFind(orgId).flatMap { org =>
       if (verifyPassword(password, org))
-        SuccessfulLogin(SessionRepository.doCreateSession(orgId))
+        Some(SessionRepository.doCreateSession(orgId))
       else
-        WrongPassword
+        None
     }
   }
 
@@ -36,8 +32,3 @@ object OzoneSecurity {
     SessionRepository.removeSession(tksid)
   }
 }
-
-sealed abstract class LoginResult
-case class SuccessfulLogin(tksid: String) extends LoginResult
-case object NoSuchOrg extends LoginResult
-case object WrongPassword extends LoginResult

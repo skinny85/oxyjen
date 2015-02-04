@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-import controllers.util.SecurityUtil
+import controllers.util.CtrlSecurityUtil
 
 import models._
 
@@ -17,9 +17,9 @@ object MainOzoneCtrl extends Controller {
       "password" -> text
     )(LoginViewModel.apply)(LoginViewModel.unapply)
   )
-  
+
   def index(orgId: String = "") = Action { implicit request =>
-    val viewParam = SecurityUtil.loggedIn() match {
+    val viewParam = CtrlSecurityUtil.loggedIn() match {
       case Some(org) =>
         Left(org)
       case None =>
@@ -36,17 +36,17 @@ object MainOzoneCtrl extends Controller {
       },
       loginFormViewModel => {
         OzoneSecurity.login(loginFormViewModel.orgId, loginFormViewModel.password) match {
-          case SuccessfulLogin(tksid) =>
+          case Some(tksid) =>
             Redirect(routes.MainOzoneCtrl.index())
               .withSession("tksid" -> tksid)
-          case NoSuchOrg | WrongPassword =>
+          case None =>
             Redirect(routes.MainOzoneCtrl.index(loginFormViewModel.orgId)).flashing(("warning", "Wrong credentials"))
         }
       }
     )
   }
-  
+
   def logout = Action { implicit request =>
-    SecurityUtil.logout(routes.MainOzoneCtrl.index())
+    CtrlSecurityUtil.logout(routes.MainOzoneCtrl.index())
   }
 }
