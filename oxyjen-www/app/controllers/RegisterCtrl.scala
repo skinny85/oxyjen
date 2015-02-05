@@ -1,5 +1,6 @@
 package controllers
 
+import controllers.util.CtrlFormDataUtil
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -37,29 +38,17 @@ object RegisterCtrl extends Controller {
           val maybeViolations = OrganizationRepository.validate(registerViewModel.orgId,
             registerViewModel.password)
           if (maybeViolations.isDefined)
-            returnForm = addViolations(maybeViolations.get, returnForm)
+            returnForm = CtrlFormDataUtil.addViolations(maybeViolations.get, returnForm)
 
           Ok(views.html.ozone.register(returnForm))
         } else {
           OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
             case InvalidOrgArguments(violations) =>
-              Ok(views.html.ozone.register(addViolations(violations, boundForm)))
+              Ok(views.html.ozone.register(CtrlFormDataUtil.addViolations(violations, boundForm)))
             case SuccessfulOrgCreation(id) =>
-              Redirect(routes.MainOzoneCtrl.index()).flashing(("message" -> "Organization created"))
-          }
+              Redirect(routes.MainOzoneCtrl.index()).flashing("message" -> "Organization created")          }
         }
       }
     )
   })
-
-  private def addViolations(violations: ConstraintViolations,
-                            form: Form[RegisterViewModel]): Form[RegisterViewModel] = {
-    var ret = form
-    for (violation <- violations)
-      ret = ret.withError(translateViolation(violation))
-    ret
-  }
-
-  private def translateViolation(violation: ConstraintViolation): FormError =
-    FormError(violation.property, violation.message)
 }

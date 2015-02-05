@@ -1,13 +1,31 @@
-@(org: Organization)(implicit flash: Flash)
+@(org: Organization, uploadForm: Form[OrganizationCtrl.UploadViewModel])(implicit flash: Flash)
 
 @templates.ozone.organization(OrganizationCtrl.MenuItemsEnum.Upload)(org) {
 
     @common.flash_bootstrap()
 
-    @helper.form(action = routes.OrganizationCtrl.handleUpload(), 'enctype -> "multipart/form-data") {
-        <input type="file" name="archive">
-        <p>
-            <input type="submit" value="Send">
-        </p>
+    @helper.form(action = routes.OrganizationCtrl.handleUpload(),
+            'enctype -> "multipart/form-data") {
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input name="name" type="text" id="name" placeholder="Name"
+                class="form-control" value="@uploadForm("name").value">
+            @ozone.form_field_error(uploadForm.error("name"))
+        </div>
+
+        <div class="form-group">
+            <label for="version">Version</label>
+            <input name="version" type="text" id="version" placeholder="Version"
+                class="form-control" value="@uploadForm("version").value">
+            @ozone.form_field_error(uploadForm.error("version"))
+        </div>
+
+        <div class="form-group">
+            <label for="archive">Archive</label>
+            <input name="archive" type="file" id="archive">
+            @ozone.form_field_error(uploadForm.error("archive"))
+        </div>
+
+        <input type="submit" value="Upload" class="btn btn-success">
     }
 }
