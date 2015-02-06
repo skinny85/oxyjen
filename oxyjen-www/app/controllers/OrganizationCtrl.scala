@@ -93,7 +93,7 @@ object OrganizationCtrl extends Controller {
                       CtrlFormDataUtil.addViolations(violations, boundUploadForm))))
                   case Right(future) =>
                     mapTry(future) {
-                      case Success(wsResponse) =>
+                      case Success(_) =>
                         Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Upload OK")
                       case Failure(e) =>
                         Logger.warn("Archive upload failed!", e)
@@ -110,7 +110,7 @@ object OrganizationCtrl extends Controller {
   def mapTry[T, S](future: Future[T])(f: Try[T] => S)
                           (implicit context: ExecutionContext): Future[S] = {
     val promise = Promise[S]()
-    future.onComplete[Unit](tryT => promise.success(f(tryT)))
+    future.onComplete[Unit](tryT => promise.complete(Try { f(tryT) }))
     promise.future
   }
 }

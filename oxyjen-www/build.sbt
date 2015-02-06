@@ -11,5 +11,6 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
+  "commons-io" % "commons-io" % "2.4",
   "com.github.t3hnar" %% "scala-bcrypt" % "2.4"
 )
