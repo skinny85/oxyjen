@@ -7,9 +7,10 @@ import anorm._
 import play.api.Logger
 import play.api.db.DB
 import play.api.Play.current
-import play.api.libs.ws.{WSAuthScheme, WS}
+import play.api.libs.ws.{WSResponse, WSAuthScheme, WS}
 
 import scala.None
+import scala.concurrent.Future
 import scala.util.Failure
 
 object Upload {
@@ -48,15 +49,15 @@ object Upload {
   }
 
   def upload(org: Organization, name: String, version: String, archive: File):
-      Option[ConstraintViolations] = {
+      Either[ConstraintViolations, Future[WSResponse]] = {
     DB.withConnection(doUpload(org, name, version, archive)(_))
   }
 
   def doUpload(org: Organization, name: String, version: String, file: File)
-              (implicit c: Connection): Option[ConstraintViolations] = {
+              (implicit c: Connection): Either[ConstraintViolations, Future[WSResponse]] = {
     val violations = doValidate(name, version)
-    if (!violations.isEmpty)
-      return Some(violations)
+    if (violations.nonEmpty)
+      return Left(violations)
 
     val holder = WS.
       url(s"http://localhost:8081/artifactory/oxyjen/${org.orgId}/$name/$version/$name-$version.zip").
@@ -71,8 +72,8 @@ object Upload {
       case scala.util.Success(resp) =>
         Logger.info("Upload response:\n" + resp.json.as[String])
     }
-    result.wait()
-    None
+
+    Right(result)
   }
 }
 

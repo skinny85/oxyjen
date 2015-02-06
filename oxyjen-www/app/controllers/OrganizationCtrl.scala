@@ -1,7 +1,6 @@
 package controllers
 
 import play.api.Logger
-import play.api.libs.Files
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -10,7 +9,8 @@ import controllers.util.{CtrlFormDataUtil, CtrlSecurityUtil}
 
 import models._
 
-import scala.io.Source
+import scala.concurrent.{ExecutionContext, Promise, Future}
+import scala.util.{Failure, Success, Try}
 
 object OrganizationCtrl extends Controller {
 
@@ -64,15 +64,17 @@ object OrganizationCtrl extends Controller {
     }
   }
 
-  def handleUpload = Action(parse.multipartFormData) { implicit request =>
+  def handleUpload = Action.async(parse.multipartFormData) { implicit request =>
+    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Redirect(routes.MainOzoneCtrl.loginPage())
+        Future.successful(Redirect(routes.MainOzoneCtrl.loginPage()))
       case Some(org) =>
         val boundUploadForm = uploadForm.bindFromRequest()
         boundUploadForm.fold(
           formWithErrors => {
-            BadRequest(views.html.ozone.organization.upload(org, formWithErrors))
+            Future.successful(BadRequest(views.html.ozone.organization.upload(org, formWithErrors)))
           },
           uploadViewModel => {
             request.body.file("archive") match {
@@ -81,21 +83,34 @@ object OrganizationCtrl extends Controller {
                 val formToDisplay = CtrlFormDataUtil
                   .addViolations(violations, boundUploadForm)
                   .withError("archive", "No file given")
-                Ok(views.html.ozone.organization.upload(org, formToDisplay))
+                Future.successful(Ok(views.html.ozone.organization.upload(org, formToDisplay)))
               case Some(archive) =>
                 val tmpFile = archive.ref.file
 
-//                val source = Source.fromFile(tmpFile)
-//                val contents = source.mkString
-//                source.close()
-//                Logger.info(s"file contents: $contents")
-
-                val result = Upload.upload(org, uploadViewModel.name, uploadViewModel.version, tmpFile)
-
-                Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Upload OK")
+                Upload.upload(org, uploadViewModel.name, uploadViewModel.version, tmpFile) match {
+                  case Left(violations) =>
+                    Future.successful(Ok(views.html.ozone.organization.upload(org,
+                      CtrlFormDataUtil.addViolations(violations, boundUploadForm))))
+                  case Right(future) =>
+                    mapTry(future) {
+                      case Success(wsResponse) =>
+                        Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Upload OK")
+                      case Failure(e) =>
+                        Logger.warn("Archive upload failed!", e)
+                        Ok(views.html.ozone.organization.upload(org,
+                          boundUploadForm.withGlobalError(s"Upload failed (${e.getMessage})")))
+                    }
+                }
             }
           }
         )
     }
+  }
+
+  def mapTry[T, S](future: Future[T])(f: Try[T] => S)
+                          (implicit context: ExecutionContext): Future[S] = {
+    val promise = Promise[S]()
+    future.onComplete[Unit](tryT => promise.success(f(tryT)))
+    promise.future
   }
 }

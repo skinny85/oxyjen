@@ -4,6 +4,12 @@
 
     @common.flash_bootstrap()
 
+    @if(uploadForm.hasGlobalErrors) {
+        @for(error <- uploadForm.globalErrors) {
+            <span class="text-danger">@error.message</span>
+        }
+    }
+
     @helper.form(action = routes.OrganizationCtrl.handleUpload(),
             'enctype -> "multipart/form-data") {
         <div class="form-group">
