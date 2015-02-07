@@ -3,13 +3,13 @@ package models
 import java.io.File
 import java.sql.Connection
 import models.util.Futures
-import org.apache.commons.io.FileUtils
 
 import anorm._
 import play.api.Logger
 import play.api.db.DB
 import play.api.Play.current
-import play.api.libs.ws.{WSAuthScheme, WS}
+import play.api.http.{Writeable, ContentTypeOf}
+import play.api.libs.ws.{WSResponse, WSAuthScheme, WS}
 
 import scala.concurrent.Future
 import scala.util.Failure
@@ -22,7 +22,7 @@ object Upload {
                                   (implicit c: Connection): ConstraintViolations = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
-    def addNameViolation(message: String ) {
+    def addNameViolation(message: String) {
       ret = ret :+ ConstraintViolation("name", message)
     }
 
@@ -50,29 +50,15 @@ object Upload {
   }
 
   def upload(org: Organization, name: String, version: String, archive: File):
-      Either[ConstraintViolations, Future[Unit]] = {
+  Either[ConstraintViolations, Future[Unit]] = {
     DB.withConnection(doUpload(org, name, version, archive)(_))
   }
 
-  def doUpload(org: Organization, name: String, version: String, file: File)
+  def doUpload(org: Organization, name: String, version: String, archive: File)
               (implicit c: Connection): Either[ConstraintViolations, Future[Unit]] = {
     val violations = doValidate(name, version)
     if (violations.nonEmpty)
       return Left(violations)
-
-    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-    val holder = WS.
-      url(s"http://localhost:8081/artifactory/oxyjen/${org.orgId}/$name/$version/$name-$version.zip").
-      withAuth("admin", "password", WSAuthScheme.BASIC)
-
-    val result = holder.put(file)
-    result.onComplete {
-      case Failure(e) =>
-        Logger.error("Error uploading file", e)
-      case scala.util.Success(resp) =>
-        Logger.info("Upload response:\n" + resp.json.toString())
-    }
 
     val pomXml =
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
@@ -87,18 +73,39 @@ object Upload {
     <description>Artifactory auto generated POM</description>
 </project>
 
-    val holder2 = WS.
-      url(s"http://localhost:8081/artifactory/oxyjen/${org.orgId}/$name/$version/$name-$version.pom").
-      withAuth("admin", "password", WSAuthScheme.BASIC)
+    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-    val result2 = holder2.put(pomXml)
-    result2.onComplete {
-      case Failure(e) =>
-        Logger.error("Error uploading file", e)
-      case scala.util.Success(resp) =>
-        Logger.info("Upload response:\n" + resp.json.toString())
+    def archiveRequest(): Future[WSResponse] = {
+      artifactoryPut[File](archive, "zip")(null, null)
     }
 
-    Right(Futures.all(result, result2))
+    def pomRequest(): Future[WSResponse] = {
+      artifactoryPut(pomXml, "pom")
+    }
+
+    def artifactoryPut[T](payload: T, ext: String)
+                         (implicit wrt: Writeable[T],
+                          ct: ContentTypeOf[T]): Future[WSResponse] = {
+      val holder = WS.
+        url(s"http://localhost:8081/artifactory/oxyjen/${org.orgId}/$name/$version/$name-$version.$ext").
+        withAuth("admin", "password", WSAuthScheme.BASIC)
+
+      val result = payload match {
+        case file: File => holder.put(file)
+        case _ => holder.put(payload)
+      }
+      result.onComplete {
+        case Failure(e) =>
+          Logger.error("Error uploading file", e)
+        case scala.util.Success(resp) =>
+          Logger.info("Upload response:\n" + resp.json.toString())
+      }
+      result
+    }
+
+    val archiveResult: Future[WSResponse] = archiveRequest()
+    val pomResult: Future[WSResponse] = pomRequest()
+
+    Right(Futures.all(archiveResult, pomResult))
   }
 }
