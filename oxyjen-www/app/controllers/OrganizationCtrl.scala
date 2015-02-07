@@ -1,5 +1,6 @@
 package controllers
 
+import models.util.Futures
 import play.api.Logger
 import play.api.mvc._
 import play.api.data._
@@ -9,8 +10,8 @@ import controllers.util.{CtrlFormDataUtil, CtrlSecurityUtil}
 
 import models._
 
-import scala.concurrent.{ExecutionContext, Promise, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object OrganizationCtrl extends Controller {
 
@@ -92,7 +93,7 @@ object OrganizationCtrl extends Controller {
                     Future.successful(Ok(views.html.ozone.organization.upload(org,
                       CtrlFormDataUtil.addViolations(violations, boundUploadForm))))
                   case Right(future) =>
-                    mapTry(future) {
+                    Futures.mapTry(future) {
                       case Success(_) =>
                         Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Upload OK")
                       case Failure(e) =>
@@ -105,12 +106,5 @@ object OrganizationCtrl extends Controller {
           }
         )
     }
-  }
-
-  def mapTry[T, S](future: Future[T])(f: Try[T] => S)
-                          (implicit context: ExecutionContext): Future[S] = {
-    val promise = Promise[S]()
-    future.onComplete[Unit](tryT => promise.complete(Try { f(tryT) }))
-    promise.future
   }
 }

@@ -2,16 +2,16 @@ package models
 
 import java.io.File
 import java.sql.Connection
-import java.util.concurrent.atomic.AtomicInteger
+import models.util.Futures
 import org.apache.commons.io.FileUtils
 
 import anorm._
 import play.api.Logger
 import play.api.db.DB
 import play.api.Play.current
-import play.api.libs.ws.{WSResponse, WSAuthScheme, WS}
+import play.api.libs.ws.{WSAuthScheme, WS}
 
-import scala.concurrent.{ExecutionContext, Promise, Future}
+import scala.concurrent.Future
 import scala.util.Failure
 
 object Upload {
@@ -101,19 +101,6 @@ object Upload {
         Logger.info("Upload response:\n" + resp.json.toString())
     }
 
-    Right(all(result, result2))
-  }
-
-  def all[T](futures: Future[T]*)(implicit executor: ExecutionContext): Future[Unit] = {
-    val promise = Promise[Unit]()
-    for (future <- futures)
-      future.onFailure[Unit] { case t => promise.tryFailure(t) }
-    val counter = new AtomicInteger(futures.size)
-    for (future <- futures)
-      future.onSuccess { case _ =>
-        if (counter.decrementAndGet() == 0)
-          promise.success(())
-      }
-    promise.future
+    Right(Futures.all(result, result2))
   }
 }
