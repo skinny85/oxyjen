@@ -10,6 +10,7 @@ import play.api.db.DB
 import play.api.Play.current
 import play.api.http.{Writeable, ContentTypeOf}
 import play.api.libs.ws.{WSResponse, WSAuthScheme, WS}
+import play.api.libs.json._
 
 import scala.concurrent.Future
 import scala.util.Failure
@@ -50,7 +51,7 @@ object Upload {
   }
 
   def upload(org: Organization, name: String, version: String, archive: File):
-  Either[ConstraintViolations, Future[Unit]] = {
+      Either[ConstraintViolations, Future[Unit]] = {
     DB.withConnection(doUpload(org, name, version, archive)(_))
   }
 
@@ -76,7 +77,7 @@ object Upload {
     implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
     def archiveRequest(): Future[WSResponse] = {
-      artifactoryPut[File](archive, "zip")(null, null)
+      artifactoryPut(archive, "zip")(null, null)
     }
 
     def pomRequest(): Future[WSResponse] = {
@@ -90,17 +91,31 @@ object Upload {
         url(s"http://localhost:8081/artifactory/oxyjen/${org.orgId}/$name/$version/$name-$version.$ext").
         withAuth("admin", "password", WSAuthScheme.BASIC)
 
-      val result = payload match {
+      val uploadResult = payload match {
         case file: File => holder.put(file)
         case _ => holder.put(payload)
       }
-      result.onComplete {
+
+      val ret = Futures.mapTry(uploadResult) {
+        case scala.util.Success(resp) =>
+          val maybeErrorsJson = resp.json.asOpt[ArtifactoryErrorsJson]
+          maybeErrorsJson match {
+            case Some(errors) =>
+              throw new IllegalStateException("Error resp from Artifactory: " +
+                errors.format)
+            case None =>
+              resp
+          }
+        case Failure(t) =>
+          throw t
+      }
+      ret.onComplete {
         case Failure(e) =>
           Logger.error("Error uploading file", e)
         case scala.util.Success(resp) =>
           Logger.info("Upload response:\n" + resp.json.toString())
       }
-      result
+      ret
     }
 
     val archiveResult: Future[WSResponse] = archiveRequest()
@@ -108,4 +123,14 @@ object Upload {
 
     Right(Futures.all(archiveResult, pomResult))
   }
+
+  case class ArtifactoryErrorJson(status: Int, message: String) {
+    def format: String = s"$message (HTTP response status: $status)"
+  }
+  case class ArtifactoryErrorsJson(errors: List[ArtifactoryErrorJson]) {
+    def format: String = errors.map(_.format).mkString("\n")
+  }
+
+  implicit val errorFormat = Json.reads[ArtifactoryErrorJson]
+  implicit val errorsFormat = Json.reads[ArtifactoryErrorsJson]
 }
