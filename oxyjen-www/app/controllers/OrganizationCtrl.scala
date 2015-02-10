@@ -80,7 +80,7 @@ object OrganizationCtrl extends Controller {
           uploadViewModel => {
             request.body.file("archive") match {
               case None =>
-                val violations = Upload.validate(uploadViewModel.name, uploadViewModel.version)
+                val violations = Upload.validate(org, uploadViewModel.name, uploadViewModel.version)
                 val formToDisplay = CtrlFormDataUtil
                   .addViolations(violations, boundUploadForm)
                   .withError("archive", "No file given")

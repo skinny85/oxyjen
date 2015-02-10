@@ -2,6 +2,7 @@ package models
 
 import java.io.File
 import java.sql.Connection
+import java.util.concurrent.TimeUnit
 import models.util.Futures
 
 import anorm._
@@ -12,14 +13,15 @@ import play.api.http.{Writeable, ContentTypeOf}
 import play.api.libs.ws.{WSResponse, WSAuthScheme, WS}
 import play.api.libs.json._
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.util.Failure
 
 object Upload {
-  def validate(name: String, version: String): ConstraintViolations =
-    DB.withConnection(doValidate(name, version)(_))
+  def validate(org: Organization, name: String, version: String): ConstraintViolations =
+    DB.withConnection(doValidate(org, name, version)(_))
 
-  protected[models] def doValidate(name: String, version: String)
+  protected[models] def doValidate(org: Organization, name: String, version: String)
                                   (implicit c: Connection): ConstraintViolations = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
@@ -47,6 +49,13 @@ object Upload {
       addVersionViolation("Version can be at most 100 characters long")
     }
 
+    if (ret.isEmpty) {
+      val future = Artifacts.search(org, name, version)
+      val result = Await.result(future, Duration(60, TimeUnit.SECONDS)) // lazy fuck
+      if (result.nonEmpty)
+        ret = ret :+ ConstraintViolation("", "There already exists an artifact with that name and version")
+    }
+
     ret
   }
 
@@ -57,7 +66,7 @@ object Upload {
 
   def doUpload(org: Organization, name: String, version: String, archive: File)
               (implicit c: Connection): Either[ConstraintViolations, Future[Unit]] = {
-    val violations = doValidate(name, version)
+    val violations = doValidate(org, name, version)
     if (violations.nonEmpty)
       return Left(violations)
 

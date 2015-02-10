@@ -11,10 +11,10 @@ import scala.concurrent.Future
 
 object Artifacts {
   case class ArtifactorySearchJsonResponse(results: List[SingleResult]) {
-    def stringify = results.map(_.toString)
+    def stringify = results.map(_.stringify)
   }
   case class SingleResult(path: String, created: String) {
-    override def toString = s"path=$path, created=" + LocalDateTime.parse(created, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    def stringify = s"path=$path, created=" + LocalDateTime.parse(created, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
   }
 
   case class Artifact()
@@ -23,6 +23,17 @@ object Artifacts {
 
   def search(org: Organization): Future[List[String]] = {
     val url = s"http://localhost:8081/artifactory/api/search/gavc?g=${org.orgId}&repos=oxyjen"
+    val holder = WS.url(url)
+      .withHeaders("X-Result-Detail" -> "info")
+    holder.get().map { resp =>
+      val result = resp.json.as[ArtifactorySearchJsonResponse]
+      result.stringify
+    }
+  }
+
+  def search(org: Organization, name: String, version: String): Future[List[String]] = {
+    val url = s"http://localhost:8081/artifactory/api/search/gavc?" +
+      s"g=${org.orgId}&a=$name&v=$version&repos=oxyjen"
     val holder = WS.url(url)
       .withHeaders("X-Result-Detail" -> "info")
     holder.get().map { resp =>
