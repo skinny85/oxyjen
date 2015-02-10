@@ -17,7 +17,7 @@ object OrganizationCtrl extends Controller {
 
   object MenuItemsEnum extends Enumeration {
     type MenuItem = Value
-    val Main, Edit, Emails, Upload = Value
+    val Main, Edit, Emails, Upload, Artifacts = Value
   }
 
   def main = Action { implicit request =>
@@ -105,6 +105,22 @@ object OrganizationCtrl extends Controller {
             }
           }
         )
+    }
+  }
+
+  def artifacts = Action.async { implicit request =>
+    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+    CtrlSecurityUtil.loggedIn() match {
+      case None =>
+        Future.successful(Redirect(routes.MainOzoneCtrl.loginPage()))
+      case Some(org) =>
+        Futures.mapTry(Artifacts.search(org)) {
+          case Success(results) =>
+          Ok(views.html.ozone.organization.artifacts(org, results))
+          case Failure(t) =>
+            Ok(views.html.ozone.organization.artifacts(org, List("error: " + t.getMessage)))
+        }
     }
   }
 }

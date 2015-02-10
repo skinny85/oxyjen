@@ -19,6 +19,7 @@ GET         /ozone/profile/edit                controllers.OrganizationCtrl.edit
 GET         /ozone/profile/emails              controllers.OrganizationCtrl.emails
 GET         /ozone/profile/upload              controllers.OrganizationCtrl.upload
 POST        /ozone/profile/handleUpload        controllers.OrganizationCtrl.handleUpload
+GET         /ozone/profile/artifacts           controllers.OrganizationCtrl.artifacts
 
 POST        /ozone/api/register                controllers.JsonApiCtrl.register
 POST        /ozone/api/login                   controllers.JsonApiCtrl.login

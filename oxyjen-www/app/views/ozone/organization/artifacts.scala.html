@@ -1,0 +1,11 @@
+@(org: Organization, results: List[String])(implicit flash: Flash)
+
+@templates.ozone.organization(OrganizationCtrl.MenuItemsEnum.Artifacts)(org) {
+    This is the Artifacts organization panel.
+
+    <ul>
+        @for(result <- results) {
+            <li>@result</li>
+        }
+    </ul>
+}
