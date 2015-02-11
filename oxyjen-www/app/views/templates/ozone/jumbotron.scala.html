@@ -11,5 +11,12 @@
         </div>
     </div>
 
+    <div>
+        <form method="POST" action="@routes.SearchCtrl.search()" class="form-inline">
+            <input type="text" name="terms" placeholder="Search OxyjenZone..." class="form-control">
+            <input type="submit" value="Search" class="btn btn-success">
+        </form>
+    </div>
+
     @content
 }

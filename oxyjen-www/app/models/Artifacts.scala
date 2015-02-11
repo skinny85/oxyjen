@@ -22,19 +22,20 @@ object Artifacts {
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   def search(org: Organization): Future[List[String]] = {
-    val url = s"http://localhost:8081/artifactory/api/search/gavc?g=${org.orgId}&repos=oxyjen"
-    val holder = WS.url(url)
-      .withHeaders("X-Result-Detail" -> "info")
-    holder.get().map { resp =>
-      val result = resp.json.as[ArtifactorySearchJsonResponse]
-      result.stringify
-    }
+    doSearch(s"gavc?g=${org.orgId}&repos=oxyjen")
   }
 
   def search(org: Organization, name: String, version: String): Future[List[String]] = {
-    val url = s"http://localhost:8081/artifactory/api/search/gavc?" +
-      s"g=${org.orgId}&a=$name&v=$version&repos=oxyjen"
-    val holder = WS.url(url)
+    doSearch(s"gavc?g=${org.orgId}&a=$name&v=$version&repos=oxyjen")
+  }
+
+  def search(name: String): Future[List[String]] = {
+    doSearch(s"artifact?name=$name")
+  }
+
+  private def doSearch(url: String): Future[List[String]] = {
+    val fullUrl = "http://localhost:8081/artifactory/api/search/" + url
+    val holder = WS.url(fullUrl)
       .withHeaders("X-Result-Detail" -> "info")
     holder.get().map { resp =>
       val result = resp.json.as[ArtifactorySearchJsonResponse]

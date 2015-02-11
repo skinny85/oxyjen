@@ -117,7 +117,7 @@ object OrganizationCtrl extends Controller {
       case Some(org) =>
         Futures.mapTry(Artifacts.search(org)) {
           case Success(results) =>
-          Ok(views.html.ozone.organization.artifacts(org, results))
+            Ok(views.html.ozone.organization.artifacts(org, results))
           case Failure(t) =>
             Ok(views.html.ozone.organization.artifacts(org, List("error: " + t.getMessage)))
         }

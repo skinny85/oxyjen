@@ -1,0 +1,12 @@
+@(results: List[String] = Nil)
+
+@templates.ozone.jumbotron("OxyjenZone | Search Results") {
+    <div class="container">
+        <ul>
+            These are the search results.
+            @for(result <- results) {
+                <li>@result</li>
+            }
+        </ul>
+    </div>
+}
