@@ -11,7 +11,6 @@ POST        /ozone/register                    controllers.RegisterCtrl.register
 
 GET         /ozone/loginPage                   controllers.MainOzoneCtrl.loginPage(orgId ?= "")
 POST        /ozone/loginPage                   controllers.MainOzoneCtrl.loginPagePost
-POST        /ozone/login                       controllers.MainOzoneCtrl.login
 POST        /ozone/logout                      controllers.MainOzoneCtrl.logout
 
 GET         /ozone/profile                     controllers.OrganizationCtrl.main

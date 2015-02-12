@@ -1,55 +1,6 @@
-@(loggedIn: Either[Organization, Form[MainOzoneCtrl.LoginViewModel]])(implicit flash: Flash)
+@(maybeOrg: Option[Organization])(implicit flash: Flash)
 
-@templates.main("OxyjenZone") {
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Oxyjen</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                @if(loggedIn.isLeft) {
-                    @defining(loggedIn.left.get) { org =>
-                        <form class="navbar-form navbar-right" method="post"
-                                action="@routes.MainOzoneCtrl.logout()">
-                            <p class="form-group navbar-text navbar-right">
-                                You are logged in as @org.orgId
-                            </p>
-                            <p class="form-group navbar-text navbar-right">
-                                Click <a href="@routes.OrganizationCtrl.main()">here</a>
-                                to go the your profile page.
-                            </p>
-                            <button type="submit" class="btn btn-success">Log out</button>
-                        </form>
-                    }
-                } else {
-                    @defining(loggedIn.right.get) { loginForm =>
-                        <form class="navbar-form navbar-right" method="post"
-                                action="@routes.MainOzoneCtrl.login()">
-                            <div class="form-group">
-                                <input name="orgId" type="text" placeholder="Organization ID" class="form-control"
-                                value="@loginForm("orgId").value">
-                            </div>
-                            <div class="form-group">
-                                <input name="password" type="password" placeholder="Password" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-success">Sign in</button>
-                            <div class="form-group navbar-text navbar-right">
-                                Don't have an account?
-                                <a href="@routes.RegisterCtrl.register()">Register here</a>
-                            </div>
-                        </form>
-                    }
-                }
-            </div><!--/.navbar-collapse -->
-        </div>
-    </nav>
-
+@templates.ozone.oxyjen_zone(maybeOrg) {
     <div class="jumbotron">
         <div class="container">
             <h1>OxyjenZone</h1>
@@ -62,8 +13,6 @@
     </div>
 
     <div class="container">
-        @common.flash_bootstrap()
-
         <div class="row">
             <div class="col-md-4">
                 <h2>Heading</h2>
@@ -81,11 +30,5 @@
                 <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
             </div>
         </div>
-
-        <hr>
-
-        <footer>
-            <p>&copy; 2015 Adam Ruka</p>
-        </footer>
     </div> <!-- /container -->
 }

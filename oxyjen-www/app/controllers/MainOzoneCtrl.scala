@@ -19,31 +19,7 @@ object MainOzoneCtrl extends Controller {
   )
 
   def index(orgId: String = "") = Action { implicit request =>
-    val viewParam = CtrlSecurityUtil.loggedIn() match {
-      case Some(org) =>
-        Left(org)
-      case None =>
-        Right(loginForm.fill(LoginViewModel(orgId, "")))
-    }
-    Ok(views.html.ozone.index(viewParam))
-  }
-
-  def login = Action { implicit request =>
-    val boundLoginForm = loginForm.bindFromRequest()
-    boundLoginForm.fold(
-      loginFormWithErrors => {
-        BadRequest(views.html.ozone.index(Right(loginFormWithErrors)))
-      },
-      loginFormViewModel => {
-        OzoneSecurity.login(loginFormViewModel.orgId, loginFormViewModel.password) match {
-          case Some(tksid) =>
-            Redirect(routes.MainOzoneCtrl.index())
-              .withSession("tksid" -> tksid)
-          case None =>
-            Redirect(routes.MainOzoneCtrl.index(loginFormViewModel.orgId)).flashing(("warning", "Wrong credentials"))
-        }
-      }
-    )
+    Ok(views.html.ozone.index(CtrlSecurityUtil.loggedIn()))
   }
 
   def logout = Action { implicit request =>

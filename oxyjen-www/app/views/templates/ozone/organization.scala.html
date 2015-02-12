@@ -4,7 +4,7 @@
     if (menuItem == tab) "active" else ""
 }
 
-@templates.ozone.jumbotron(s"OxyjenZone | Organization (${org.orgId})") {
+@templates.ozone.oxyjen_zone(Some(org), s"Organization (${org.orgId})") {
     <div class="container">
         <div class="col-md-3">
             <nav>

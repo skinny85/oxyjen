@@ -19,7 +19,7 @@ object RegisterCtrl extends Controller {
     )(RegisterViewModel.apply)(RegisterViewModel.unapply)
   )
 
-  def register = Action {
+  def register = Action { implicit request =>
     Ok(views.html.ozone.register(registerForm))
   }
 

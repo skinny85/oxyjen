@@ -1,0 +1,53 @@
+@(maybeOrg: Option[Organization], subtitle: String = "")(content: Html)(implicit flash: Flash)
+
+@title(subtitle: String) = @{
+    "OxyjenZone" + (if (subtitle.isEmpty) "" else " | " + subtitle)
+}
+
+@templates.main(title(subtitle)) {
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="@routes.MainOzoneCtrl.index()">OxyjenZone</a>
+            </div>
+
+            <div id="navbar" class="navbar-collapse collapse">
+                @if(maybeOrg.isDefined) {
+                    @defining(maybeOrg.get) { org =>
+                        <form class="navbar-form navbar-right" method="post"
+                                action="@routes.MainOzoneCtrl.logout()">
+                            <p class="form-group navbar-text navbar-right">
+                                You are logged in as @org.orgId
+                            </p>
+                            <p class="form-group navbar-text navbar-right">
+                                Click <a href="@routes.OrganizationCtrl.main()">here</a>
+                                to go the your profile page.
+                            </p>
+                            <button type="submit" class="btn btn-success">Log out</button>
+                        </form>
+                    }
+                } else {
+                    <div class="navbar navbar-right">
+                        <a class="btn btn-default" href="@routes.RegisterCtrl.register()">Register</a>
+                        <a class="btn btn-success" href="@routes.MainOzoneCtrl.loginPage()">Log in</a>
+                    </div>
+                }
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+    @content
+
+    <div class="container">
+        <hr>
+        <footer>
+            <p>&copy; 2015 Adam Ruka</p>
+        </footer>
+    </div>
+}
