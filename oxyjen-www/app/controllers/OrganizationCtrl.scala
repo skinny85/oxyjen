@@ -23,7 +23,7 @@ object OrganizationCtrl extends Controller {
   def main = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Redirect(routes.MainOzoneCtrl.loginPage())
+        Redirect(routes.SignInCtrl.login())
       case Some(org) =>
         Ok(views.html.ozone.organization.main(org))
     }
@@ -32,7 +32,7 @@ object OrganizationCtrl extends Controller {
   def edit = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Redirect(routes.MainOzoneCtrl.loginPage())
+        Redirect(routes.SignInCtrl.login())
       case Some(org) =>
         Ok(views.html.ozone.organization.edit(org))
     }
@@ -41,7 +41,7 @@ object OrganizationCtrl extends Controller {
   def emails = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Redirect(routes.MainOzoneCtrl.loginPage())
+        Redirect(routes.SignInCtrl.login())
       case Some(org) =>
         Ok(views.html.ozone.organization.emails(org))
     }
@@ -59,7 +59,7 @@ object OrganizationCtrl extends Controller {
   def upload = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Redirect(routes.MainOzoneCtrl.loginPage())
+        Redirect(routes.SignInCtrl.login())
       case Some(org) =>
         Ok(views.html.ozone.organization.upload(org, uploadForm))
     }
@@ -70,7 +70,7 @@ object OrganizationCtrl extends Controller {
 
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Future.successful(Redirect(routes.MainOzoneCtrl.loginPage()))
+        Future.successful(Redirect(routes.SignInCtrl.login()))
       case Some(org) =>
         val boundUploadForm = uploadForm.bindFromRequest()
         boundUploadForm.fold(
@@ -113,7 +113,7 @@ object OrganizationCtrl extends Controller {
 
     CtrlSecurityUtil.loggedIn() match {
       case None =>
-        Future.successful(Redirect(routes.MainOzoneCtrl.loginPage()))
+        Future.successful(Redirect(routes.SignInCtrl.login()))
       case Some(org) =>
         Futures.mapTry(Artifacts.search(org)) {
           case Success(results) =>

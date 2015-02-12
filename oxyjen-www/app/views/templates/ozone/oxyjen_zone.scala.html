@@ -21,7 +21,7 @@
                 @if(maybeOrg.isDefined) {
                     @defining(maybeOrg.get) { org =>
                         <form class="navbar-form navbar-right" method="post"
-                                action="@routes.MainOzoneCtrl.logout()">
+                                action="@routes.SignInCtrl.logout()">
                             <p class="form-group navbar-text navbar-right">
                                 You are logged in as @org.orgId
                             </p>
@@ -35,7 +35,7 @@
                 } else {
                     <div class="navbar navbar-right">
                         <a class="btn btn-default" href="@routes.RegisterCtrl.register()">Register</a>
-                        <a class="btn btn-success" href="@routes.MainOzoneCtrl.loginPage()">Log in</a>
+                        <a class="btn btn-success" href="@routes.SignInCtrl.login()">Log in</a>
                     </div>
                 }
             </div><!--/.navbar-collapse -->

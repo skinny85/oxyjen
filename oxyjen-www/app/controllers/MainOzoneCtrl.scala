@@ -6,46 +6,8 @@ import play.api.data.Forms._
 
 import controllers.util.CtrlSecurityUtil
 
-import models._
-
 object MainOzoneCtrl extends Controller {
-  case class LoginViewModel(orgId: String, password: String)
-
-  val loginForm = Form(
-    mapping(
-      "orgId" -> text,
-      "password" -> text
-    )(LoginViewModel.apply)(LoginViewModel.unapply)
-  )
-
-  def index(orgId: String = "") = Action { implicit request =>
+  def index = Action { implicit request =>
     Ok(views.html.ozone.index(CtrlSecurityUtil.loggedIn()))
-  }
-
-  def logout = Action { implicit request =>
-    CtrlSecurityUtil.logout(routes.MainOzoneCtrl.index())
-  }
-
-  def loginPage(orgId: String = "") = Action { implicit request =>
-    Ok(views.html.ozone.login(orgId))
-  }
-
-  def loginPagePost = Action { implicit request =>
-    val boundLoginForm = loginForm.bindFromRequest()
-    boundLoginForm.fold(
-      loginFormWithErrors => {
-        BadRequest(views.html.ozone.login(loginFormWithErrors("orgId").value.getOrElse("")))
-      },
-      loginFormViewModel => {
-        OzoneSecurity.login(loginFormViewModel.orgId, loginFormViewModel.password) match {
-          case Some(tksid) =>
-            Redirect(routes.OrganizationCtrl.main())
-              .withSession("tksid" -> tksid)
-          case None =>
-            Redirect(routes.MainOzoneCtrl.loginPage(loginFormViewModel.orgId))
-              .flashing(("error", "Incorrect Organization ID and/or password"))
-        }
-      }
-    )
   }
 }
