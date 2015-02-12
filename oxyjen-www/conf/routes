@@ -21,8 +21,6 @@ GET         /ozone/profile/upload              controllers.OrganizationCtrl.uplo
 POST        /ozone/profile/handleUpload        controllers.OrganizationCtrl.handleUpload
 GET         /ozone/profile/artifacts           controllers.OrganizationCtrl.artifacts
 
-POST        /ozone/search                      controllers.SearchCtrl.search
-
 POST        /ozone/api/register                controllers.JsonApiCtrl.register
 POST        /ozone/api/login                   controllers.JsonApiCtrl.login
 
