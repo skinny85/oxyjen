@@ -110,7 +110,7 @@ object OrganizationCtrl extends Controller {
                   case Right(future) =>
                     Futures.mapTry(future) {
                       case Success(_) =>
-                        Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Upload OK")
+                        Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Uploaded successfully")
                       case Failure(e) =>
                         Logger.warn("Archive upload failed!", e)
                         Ok(views.html.ozone.organization.upload(org,
