@@ -24,25 +24,36 @@ object OrganizationRepository {
   def create(orgId: String, password: String): OrgCreationResult =
     DB.withConnection(doCreate(orgId, password)(_))
 
+  private val orgIdRegex = """\A[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z][a-zA-Z0-9]*)*\z""".r
+
   protected[models] def doValidate(orgId: String, password: String)(implicit c: Connection): Option[ConstraintViolations] = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
     def addOrgIdViolation(message: String ) {
       ret = ret :+ ConstraintViolation("orgId", message)
     }
+    val trimmedOrgId = orgId.trim
 
-    if (orgId.isEmpty) {
+    if (trimmedOrgId.isEmpty) {
       addOrgIdViolation("Organization ID cannot be empty")
-    } else if (orgId.length < 3) {
+    } else if (trimmedOrgId.length < 3) {
       addOrgIdViolation("Organization ID must be at least 3 characters long")
-    } else if (orgId.length > 100) {
+    } else if (trimmedOrgId.length > 100) {
       addOrgIdViolation("Organization ID can be at most 100 characters long")
-    } else if (orgId == "xxxx") {
-      addOrgIdViolation("Organization ID can't be 'xxxx', you jackass!")
+    } else if (trimmedOrgId.toLowerCase.contains("oxyjen")) {
+      addOrgIdViolation("'Oxyjen' is not allowed as a part of an Organization ID")
+    } else if (orgIdIsOnReservedList(trimmedOrgId)) {
+      addOrgIdViolation("This Organization ID is reserved")
+    } else if (orgIdRegex.findFirstMatchIn(trimmedOrgId).isEmpty) {
+      addOrgIdViolation("An Organization ID can only consist of words separated by underscores")
     } else {
-      val result = SQL"SELECT org_id FROM Organization WHERE org_id = $orgId"()
+      val result = SQL"SELECT org_id FROM Organization WHERE org_id = $trimmedOrgId"()
       if (result.nonEmpty)
         addOrgIdViolation("An organization with that ID already exists")
+    }
+
+    def orgIdIsOnReservedList(orgId: String): Boolean = {
+      Seq("official", "supported", "original") exists(_.equalsIgnoreCase(orgId))
     }
 
     def addPasswordViolation(message: String) {
