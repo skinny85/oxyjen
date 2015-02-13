@@ -1,7 +1,7 @@
 # --- !Ups
 
-INSERT INTO Organization (org_id, password, salt) VALUES
-  ('oxyjen', 'password', 'salt');
+INSERT INTO Organization (org_id, description, password, salt) VALUES
+  ('oxyjen', '', 'password', 'salt');
 
 # --- !Downs
 

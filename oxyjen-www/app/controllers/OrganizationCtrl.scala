@@ -17,7 +17,7 @@ object OrganizationCtrl extends Controller {
 
   object MenuItemsEnum extends Enumeration {
     type MenuItem = Value
-    val Main, Edit, Emails, Upload, Artifacts = Value
+    val Main, Edit, Upload, Artifacts = Value
   }
 
   def main = Action { implicit request =>
@@ -29,6 +29,12 @@ object OrganizationCtrl extends Controller {
     }
   }
 
+  val editForm = Form(
+    single(
+      "desc" -> text
+    )
+  )
+
   def edit = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
@@ -38,12 +44,21 @@ object OrganizationCtrl extends Controller {
     }
   }
 
-  def emails = Action { implicit request =>
+  def editPost = Action { implicit request =>
     CtrlSecurityUtil.loggedIn() match {
       case None =>
         Redirect(routes.SignInCtrl.login())
       case Some(org) =>
-        Ok(views.html.ozone.organization.emails(org))
+        val boundEditForm = editForm.bindFromRequest()
+        boundEditForm.fold(
+          errors => {
+            BadRequest(views.html.ozone.organization.edit(org))
+          },
+          desc => {
+            OrganizationRepository.update(org.copy(desc = desc))
+            Redirect(routes.OrganizationCtrl.edit()).flashing("message" -> "Organization info updated")
+          }
+        )
     }
   }
 
@@ -65,7 +80,7 @@ object OrganizationCtrl extends Controller {
     }
   }
 
-  def handleUpload = Action.async(parse.multipartFormData) { implicit request =>
+  def uploadPost = Action.async(parse.multipartFormData) { implicit request =>
     implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
     CtrlSecurityUtil.loggedIn() match {

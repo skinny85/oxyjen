@@ -13,7 +13,8 @@ object OrganizationRepository {
       None
     else {
       val firstRow = rows.head
-      Some(Organization(firstRow[Long]("id"), firstRow[String]("org_id"), firstRow[String]("password"), firstRow[String]("salt")))
+      Some(Organization(firstRow[Long]("id"), firstRow[String]("org_id"), firstRow[String]("description"),
+        firstRow[String]("password"), firstRow[String]("salt")))
     }
   }
 
@@ -66,9 +67,15 @@ object OrganizationRepository {
         val salt = Crypto.generateSalt()
         val hashedPassword = Crypto.bcrypt(password, salt)
         val id: Option[Long] = SQL"""
-            INSERT INTO Organization (org_id, salt, password) VALUES
-              ($orgId, $salt, $hashedPassword)""".executeInsert()
+            INSERT INTO Organization (org_id, description, salt, password) VALUES
+              ($orgId, '', $salt, $hashedPassword)""".executeInsert()
         SuccessfulOrgCreation(id.get)
+    }
+  }
+
+  def update(org: Organization): Unit = {
+    DB.withConnection { implicit c =>
+      SQL"UPDATE Organization SET description = ${org.desc}".executeUpdate()
     }
   }
 }

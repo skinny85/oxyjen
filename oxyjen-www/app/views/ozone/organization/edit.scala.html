@@ -1,5 +1,20 @@
 @(org: Organization)(implicit flash: Flash)
 
 @templates.ozone.organization(OrganizationCtrl.MenuItemsEnum.Edit)(org) {
-    This is the edit organization panel.
+    @common.flash_bootstrap()
+
+    <form action="@routes.OrganizationCtrl.editPost()" method="post">
+        <div class="form-group">
+            <label for="orgId">Organization ID</label>
+            <input type="text" id="orgId" class="form-control" value="@org.orgId" disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="desc">Description</label>
+            <textarea name="desc" id="desc" placeholder="Description"
+                class="form-control" maxlength="255">@org.desc</textarea>
+        </div>
+
+        <input type="submit" class="btn btn-success" value="Update">
+    </form>
 }

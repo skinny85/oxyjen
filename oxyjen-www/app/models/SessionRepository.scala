@@ -19,11 +19,11 @@ object SessionRepository {
               ($id, $orgId, TRUE, $now, $now, null)""".executeInsert()
     id
   }
-  
+
   def findOrgForSession(id: String): Option[Organization] = {
     DB.withConnection(doFindOrgForSession(id)(_))
   }
-  
+
   protected[models] def doFindOrgForSession(id: String)(implicit c: Connection): Option[Organization] = {
     val result = SQL"""SELECT * FROM Session s JOIN Organization o ON s.org_id = o.org_id
            WHERE s.id = $id"""()
@@ -32,14 +32,15 @@ object SessionRepository {
     else {
       val firstRow = result.head
       Some(Organization(firstRow[Long]("Organization.id"), firstRow[String]("Organization.org_id"),
-        firstRow[String]("Organization.password"), firstRow[String]("Organization.salt")))
+        firstRow[String]("Organization.description"), firstRow[String]("Organization.password"),
+        firstRow[String]("Organization.salt")))
     }
   }
-  
+
   def removeSession(id: String): Boolean = {
     DB.withConnection(doRemoveSession(id)(_))
   }
-  
+
   private def doRemoveSession(id: String)(implicit c: Connection): Boolean = {
     SQL"DELETE FROM Session WHERE id = $id".executeUpdate() > 0
   }
