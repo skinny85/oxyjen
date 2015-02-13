@@ -16,7 +16,7 @@ object SessionRepository {
     val now = new Date
     val id = Crypto.randomHash()
     SQL"""INSERT INTO Session (id, org_id, active, created, expires, ip_address) VALUES
-              ($id, $orgId, TRUE, $now, $now, null)""".executeInsert()
+              ($id, $orgId, TRUE, $now, $now, null)""".executeUpdate()
     id
   }
 

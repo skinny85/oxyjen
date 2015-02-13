@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "commons-io" % "commons-io" % "2.4",
-  "com.github.t3hnar" %% "scala-bcrypt" % "2.4"
+  "com.github.t3hnar" %% "scala-bcrypt" % "2.4",
+  "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
 )

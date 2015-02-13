@@ -79,7 +79,7 @@ object OrganizationRepository {
         val salt = Crypto.generateSalt()
         val hashedPassword = Crypto.bcrypt(password, salt)
         SQL"""INSERT INTO Organization (org_id, description, salt, password) VALUES
-              ($orgId, '', $salt, $hashedPassword)""".executeInsert()
+              ($orgId, '', $salt, $hashedPassword)""".executeUpdate()
         Right(())
     }
   }
