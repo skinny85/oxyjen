@@ -22,10 +22,10 @@ object JsonApiCtrl extends Controller {
       },
       organizationJson => {
         OrganizationRepository.create(organizationJson.orgId, organizationJson.password) match {
-          case InvalidOrgArguments(violations) =>
+          case Left(violations) =>
             UnprocessableEntity(Json.obj("status" -> "ERROR", "message" -> "Invalid arguments",
               "violations" -> violations.map(_.message)))
-          case SuccessfulOrgCreation(id) =>
+          case Right(_) =>
             Created(Json.obj("status" -> "OK", "message" -> "Organization created"))
         }
       }

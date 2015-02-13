@@ -13,7 +13,7 @@ object OrganizationRepository {
       None
     else {
       val firstRow = rows.head
-      Some(Organization(firstRow[Long]("id"), firstRow[String]("org_id"), firstRow[String]("description"),
+      Some(Organization(firstRow[String]("org_id"), firstRow[String]("description"),
         firstRow[String]("password"), firstRow[String]("salt")))
     }
   }
@@ -21,7 +21,7 @@ object OrganizationRepository {
   def validate(orgId: String, password: String): Option[ConstraintViolations] =
     DB.withConnection(doValidate(orgId, password)(_))
 
-  def create(orgId: String, password: String): OrgCreationResult =
+  def create(orgId: String, password: String): Either[ConstraintViolations, Unit] =
     DB.withConnection(doCreate(orgId, password)(_))
 
   private val orgIdRegex = """\A[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z][a-zA-Z0-9]*)*\z""".r
@@ -71,16 +71,16 @@ object OrganizationRepository {
     ConstraintViolations(ret)
   }
 
-  protected[models] def doCreate(orgId: String, password: String)(implicit c: Connection): OrgCreationResult = {
+  protected[models] def doCreate(orgId: String, password: String)(implicit c: Connection):
+      Either[ConstraintViolations, Unit]= {
     doValidate(orgId, password) match {
-      case Some(violations) => InvalidOrgArguments(violations)
+      case Some(violations) => Left(violations)
       case None =>
         val salt = Crypto.generateSalt()
         val hashedPassword = Crypto.bcrypt(password, salt)
-        val id: Option[Long] = SQL"""
-            INSERT INTO Organization (org_id, description, salt, password) VALUES
+        SQL"""INSERT INTO Organization (org_id, description, salt, password) VALUES
               ($orgId, '', $salt, $hashedPassword)""".executeInsert()
-        SuccessfulOrgCreation(id.get)
+        Right(())
     }
   }
 
@@ -90,7 +90,3 @@ object OrganizationRepository {
     }
   }
 }
-
-sealed abstract class OrgCreationResult
-case class SuccessfulOrgCreation(id: Long) extends OrgCreationResult
-case class InvalidOrgArguments(violations: ConstraintViolations) extends OrgCreationResult

@@ -31,9 +31,8 @@ object SessionRepository {
       None
     else {
       val firstRow = result.head
-      Some(Organization(firstRow[Long]("Organization.id"), firstRow[String]("Organization.org_id"),
-        firstRow[String]("Organization.description"), firstRow[String]("Organization.password"),
-        firstRow[String]("Organization.salt")))
+      Some(Organization(firstRow[String]("Organization.org_id"), firstRow[String]("Organization.description"),
+        firstRow[String]("Organization.password"), firstRow[String]("Organization.salt")))
     }
   }
 
