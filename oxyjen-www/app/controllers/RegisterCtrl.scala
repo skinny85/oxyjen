@@ -45,8 +45,8 @@ object RegisterCtrl extends Controller {
           OrganizationRepository.create(registerViewModel.orgId, registerViewModel.password) match {
             case Left(violations) =>
               Ok(views.html.ozone.register(CtrlFormDataUtil.addViolations(violations, boundForm)))
-            case Right(_) =>
-              Redirect(routes.MainOzoneCtrl.index()).flashing("message" -> "Organization created")
+            case Right(tksid) =>
+              Redirect(routes.OrganizationCtrl.main()).withSession("tksid" -> tksid)
           }
         }
       }

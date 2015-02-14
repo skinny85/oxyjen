@@ -25,8 +25,9 @@ object JsonApiCtrl extends Controller {
           case Left(violations) =>
             UnprocessableEntity(Json.obj("status" -> "ERROR", "message" -> "Invalid arguments",
               "violations" -> violations.map(_.message)))
-          case Right(_) =>
-            Created(Json.obj("status" -> "OK", "message" -> "Organization created"))
+          case Right(tksid) =>
+            Created(Json.obj("status" -> "OK", "message" -> "Organization created",
+              "tksid" -> tksid))
         }
       }
     )

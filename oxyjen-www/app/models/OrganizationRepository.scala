@@ -7,21 +7,10 @@ import play.api.db.DB
 import play.api.Play.current
 
 object OrganizationRepository {
-  protected[models] def doFind(orgId: String)(implicit c: Connection): Option[Organization] = {
-    val rows = SQL"SELECT * FROM Organization WHERE org_id = $orgId"()
-    if (rows.isEmpty)
-      None
-    else {
-      val firstRow = rows.head
-      Some(Organization(firstRow[String]("org_id"), firstRow[String]("description"),
-        firstRow[String]("password"), firstRow[String]("salt")))
-    }
-  }
-
   def validate(orgId: String, password: String): Option[ConstraintViolations] =
     DB.withConnection(doValidate(orgId, password)(_))
 
-  def create(orgId: String, password: String): Either[ConstraintViolations, Unit] =
+  def create(orgId: String, password: String): Either[ConstraintViolations, String] =
     DB.withConnection(doCreate(orgId, password)(_))
 
   private val orgIdRegex = """\A[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z][a-zA-Z0-9]*)*\z""".r
@@ -72,7 +61,7 @@ object OrganizationRepository {
   }
 
   protected[models] def doCreate(orgId: String, password: String)(implicit c: Connection):
-      Either[ConstraintViolations, Unit]= {
+      Either[ConstraintViolations, String]= {
     doValidate(orgId, password) match {
       case Some(violations) => Left(violations)
       case None =>
@@ -80,7 +69,18 @@ object OrganizationRepository {
         val hashedPassword = Crypto.bcrypt(password, salt)
         SQL"""INSERT INTO Organization (org_id, description, salt, password) VALUES
               ($orgId, '', $salt, $hashedPassword)""".executeUpdate()
-        Right(())
+        Right(SessionRepository.doCreateSession(orgId))
+    }
+  }
+
+  protected[models] def doFind(orgId: String)(implicit c: Connection): Option[Organization] = {
+    val rows = SQL"SELECT * FROM Organization WHERE org_id = $orgId"()
+    if (rows.isEmpty)
+      None
+    else {
+      val firstRow = rows.head
+      Some(Organization(firstRow[String]("org_id"), firstRow[String]("description"),
+        firstRow[String]("password"), firstRow[String]("salt")))
     }
   }
 
