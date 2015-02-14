@@ -9,7 +9,7 @@ import play.api.Play.current
 
 object SessionRepository {
   def createSession(orgId: String): String = {
-    DB.withConnection(doCreateSession(orgId: String)(_))
+    DB.withTransaction(doCreateSession(orgId: String)(_))
   }
 
   protected[models] def doCreateSession(orgId: String)(implicit c: Connection): String = {
@@ -21,7 +21,7 @@ object SessionRepository {
   }
 
   def findOrgForSession(id: String): Option[Organization] = {
-    DB.withConnection(doFindOrgForSession(id)(_))
+    DB.withTransaction(doFindOrgForSession(id)(_))
   }
 
   protected[models] def doFindOrgForSession(id: String)(implicit c: Connection): Option[Organization] = {
@@ -37,7 +37,7 @@ object SessionRepository {
   }
 
   def removeSession(id: String): Boolean = {
-    DB.withConnection(doRemoveSession(id)(_))
+    DB.withTransaction(doRemoveSession(id)(_))
   }
 
   private def doRemoveSession(id: String)(implicit c: Connection): Boolean = {

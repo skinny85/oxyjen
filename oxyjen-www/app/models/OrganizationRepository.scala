@@ -8,10 +8,10 @@ import play.api.Play.current
 
 object OrganizationRepository {
   def validate(orgId: String, password: String): Option[ConstraintViolations] =
-    DB.withConnection(doValidate(orgId, password)(_))
+    DB.withTransaction(doValidate(orgId, password)(_))
 
   def create(orgId: String, password: String): Either[ConstraintViolations, String] =
-    DB.withConnection(doCreate(orgId, password)(_))
+    DB.withTransaction(doCreate(orgId, password)(_))
 
   private val orgIdRegex = """\A[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z][a-zA-Z0-9]*)*\z""".r
 
@@ -85,7 +85,7 @@ object OrganizationRepository {
   }
 
   def update(org: Organization): Unit = {
-    DB.withConnection { implicit c =>
+    DB.withTransaction { implicit c =>
       SQL"UPDATE Organization SET description = ${org.desc}".executeUpdate()
     }
   }

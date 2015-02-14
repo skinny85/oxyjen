@@ -19,7 +19,7 @@ import scala.util.Failure
 
 object Upload {
   def validate(org: Organization, name: String, version: String): ConstraintViolations =
-    DB.withConnection(doValidate(org, name, version)(_))
+    DB.withTransaction(doValidate(org, name, version)(_))
 
   protected[models] def doValidate(org: Organization, name: String, version: String)
                                   (implicit c: Connection): ConstraintViolations = {
@@ -61,7 +61,7 @@ object Upload {
 
   def upload(org: Organization, name: String, version: String, archive: File):
       Either[ConstraintViolations, Future[Unit]] = {
-    DB.withConnection(doUpload(org, name, version, archive)(_))
+    DB.withTransaction(doUpload(org, name, version, archive)(_))
   }
 
   def doUpload(org: Organization, name: String, version: String, archive: File)

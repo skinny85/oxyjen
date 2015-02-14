@@ -8,7 +8,7 @@ import play.api.Play.current
 
 object OzoneSecurity {
   def login(orgId: String, password: String): Option[String] = {
-    DB.withConnection(doLogin(orgId, password)(_))
+    DB.withTransaction(doLogin(orgId, password)(_))
   }
 
   private def doLogin(orgId: String, password: String)(implicit c: Connection): Option[String] = {
