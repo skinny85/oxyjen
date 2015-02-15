@@ -1,5 +1,4 @@
-import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
+lazy val root = (project in file(".")).enablePlugins(UniversalPlugin)
 
 name := "oxyjen"
 
@@ -14,4 +13,11 @@ libraryDependencies ++= Seq(
   "net.lingala.zip4j" % "zip4j" % "1.3.2",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test")
 
-packageArchetype.java_application
+mappings in Universal <+= (packageBin in Compile) map { jar =>
+  jar -> "oxyjen.jar"
+}
+
+mappings in Universal <++= (fullClasspath in Compile) map { jars =>
+  for (jar <- jars) yield
+    jar.data -> ("lib/" + jar.data.getName)
+}
