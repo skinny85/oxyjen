@@ -8,29 +8,32 @@
     <nav class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
                 <a class="navbar-brand" href="@routes.MainOzoneCtrl.index()">OxyjenZone</a>
             </div>
 
             <div id="navbar" class="navbar-collapse collapse">
                 @if(maybeOrg.isDefined) {
                     @defining(maybeOrg.get) { org =>
-                        <form class="navbar-form navbar-right" method="post"
-                                action="@routes.SignInCtrl.logout()">
-                            <p class="form-group navbar-text navbar-right">
-                                You are logged in as @org.orgId
-                            </p>
-                            <p class="form-group navbar-text navbar-right">
-                                Click <a href="@routes.OrganizationCtrl.main()">here</a>
-                                to go the your profile page.
-                            </p>
-                            <button type="submit" class="btn btn-success">Log out</button>
-                        </form>
+                        <div class="dropdown navbar-right">
+                            <button class="btn btn-default dropdown-toggle" type="button"
+                                    id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                                @org.orgId <span class="caret"></span>
+                            </button>
+
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="@routes.OrganizationCtrl.main()">
+                                        View Profile
+                                    </a>
+                                </li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="@routes.SignInCtrl.logout()">
+                                        Log Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     }
                 } else {
                     <div class="navbar navbar-right">
@@ -38,7 +41,7 @@
                         <a class="btn btn-success" href="@routes.SignInCtrl.login()">Log in</a>
                     </div>
                 }
-            </div><!--/.navbar-collapse -->
+            </div>
         </div>
     </nav>
 

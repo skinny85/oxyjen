@@ -12,7 +12,7 @@ POST        /ozone/register                 controllers.RegisterCtrl.registerPos
 
 GET         /ozone/login                    controllers.SignInCtrl.login(orgId ?= "")
 POST        /ozone/login                    controllers.SignInCtrl.loginPost
-POST        /ozone/logout                   controllers.SignInCtrl.logout
+GET         /ozone/logout                   controllers.SignInCtrl.logout
 
 GET         /ozone/profile                  controllers.OrganizationCtrl.main
 GET         /ozone/profile/edit             controllers.OrganizationCtrl.edit
