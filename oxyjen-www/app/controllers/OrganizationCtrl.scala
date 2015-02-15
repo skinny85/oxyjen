@@ -81,8 +81,6 @@ object OrganizationCtrl extends Controller {
   }
 
   def uploadPost = Action.async(parse.multipartFormData) { implicit request =>
-    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
-
     CtrlSecurityUtil.loggedIn() match {
       case None =>
         Future.successful(Redirect(routes.SignInCtrl.login()))
@@ -95,27 +93,33 @@ object OrganizationCtrl extends Controller {
           uploadViewModel => {
             request.body.file("archive") match {
               case None =>
-                val violations = Upload.validate(org, uploadViewModel.name, uploadViewModel.version)
-                val formToDisplay = CtrlFormDataUtil
-                  .addViolations(violations, boundUploadForm)
-                  .withError("archive", "No file given")
-                Future.successful(Ok(views.html.ozone.organization.upload(org, formToDisplay)))
+                Futures.mapTry(Upload.validate(org, uploadViewModel.name, uploadViewModel.version)) {
+                  case Success(violations) =>
+                    val formToDisplay = CtrlFormDataUtil
+                      .addViolations(violations, boundUploadForm)
+                      .withError("archive", "No file given")
+                    Ok(views.html.ozone.organization.upload(org, formToDisplay))
+                  case Failure(e) =>
+                    Logger.warn("Archive validation failed", e)
+                    Ok(views.html.ozone.organization.upload(org,
+                      boundUploadForm.withGlobalError(s"Error processing request (${e.getMessage})")))
+                }
               case Some(archive) =>
                 val tmpFile = archive.ref.file
 
-                Upload.upload(org, uploadViewModel.name, uploadViewModel.version, tmpFile) match {
-                  case Left(violations) =>
-                    Future.successful(Ok(views.html.ozone.organization.upload(org,
-                      CtrlFormDataUtil.addViolations(violations, boundUploadForm))))
-                  case Right(future) =>
-                    Futures.mapTry(future) {
-                      case Success(_) =>
-                        Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Uploaded successfully")
-                      case Failure(e) =>
-                        Logger.warn("Archive upload failed!", e)
-                        Ok(views.html.ozone.organization.upload(org,
-                          boundUploadForm.withGlobalError(s"Upload failed (${e.getMessage})")))
-                    }
+                Futures.mapTry(Upload.upload(org, uploadViewModel.name,
+                    uploadViewModel.version, tmpFile)) {
+                  case Success(maybeViolations) => maybeViolations match {
+                    case Left(violations) =>
+                      Ok(views.html.ozone.organization.upload(org,
+                        CtrlFormDataUtil.addViolations(violations, boundUploadForm)))
+                    case Right(_) =>
+                      Redirect(routes.OrganizationCtrl.upload()).flashing("message" -> "Uploaded successfully")
+                  }
+                  case Failure(e) =>
+                    Logger.warn("Archive upload failed!", e)
+                    Ok(views.html.ozone.organization.upload(org,
+                      boundUploadForm.withGlobalError(s"Upload failed (${e.getMessage})")))
                 }
             }
           }
@@ -124,18 +128,18 @@ object OrganizationCtrl extends Controller {
   }
 
   def artifacts = Action.async { implicit request =>
-    implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
-
     CtrlSecurityUtil.loggedIn() match {
       case None =>
         Future.successful(Redirect(routes.SignInCtrl.login()))
       case Some(org) =>
         Futures.mapTry(Artifacts.search(org)) {
           case Success(results) =>
-            Ok(views.html.ozone.organization.artifacts(org, results))
+            Ok(views.html.ozone.organization.artifacts(org, Right(results)))
           case Failure(t) =>
-            Ok(views.html.ozone.organization.artifacts(org, List("error: " + t.getMessage)))
+            Ok(views.html.ozone.organization.artifacts(org, Left(t)))
         }
     }
   }
+
+  implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 }

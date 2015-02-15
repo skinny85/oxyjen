@@ -1,11 +1,55 @@
-@(org: Organization, results: List[String])(implicit flash: Flash)
+@(org: Organization, maybeResults: Either[Throwable, List[Artifact]])(implicit flash: Flash)
+
+@import java.time.LocalDateTime
+@import java.time.format.DateTimeFormatter
+
+@showDate(date: LocalDateTime) = @{
+    date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))
+}
 
 @templates.ozone.organization(OrganizationCtrl.MenuItemsEnum.Artifacts)(org) {
-    This is the Artifacts organization panel.
+    <p>
+        Here you can see a list of all the files that you uploaded to Oxyjen Zone. All
+        of these are available publicly; to use them, specify your Organization ID
+        (in your case, that is <strong>@org.orgId</strong>) along with the artifact's
+        name and (optionally) version when running Oxyjen from the command line.
+    </p>
 
-    <ul>
-        @for(result <- results) {
-            <li>@result</li>
+    @if(maybeResults.isLeft) {
+        @defining(maybeResults.left.get) { e =>
+          <span class="bg-danger">
+              Error retrieving artifacts (@e.getMessage)
+          </span>
         }
-    </ul>
+    } else {
+        @defining(maybeResults.right.get) { results =>
+            @if(results.isEmpty) {
+                <div class="alert alert-warning">
+                    You have not uploaded any files yet. Go to the
+                    <a href="@routes.OrganizationCtrl.upload()">upload page</a>
+                    to send a file.
+                </div>
+            } else {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Created On</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for(result <- results) {
+                            <tr>
+                                <td>@result.name</td>
+                                <td>@result.version</td>
+                                <td>@showDate(result.createdOn)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+    }
 }
