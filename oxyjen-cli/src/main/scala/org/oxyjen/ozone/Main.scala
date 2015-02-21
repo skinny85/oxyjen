@@ -1,0 +1,40 @@
+package org.oxyjen.ozone
+
+import org.oxyjen.ozone.commands.Register
+import org.slf4j.LoggerFactory
+
+object Main {
+  private val errLog = LoggerFactory.getLogger("org.oxyjen.ozone.Main")
+
+  def main(args: Array[String]): Unit = {
+    val exitStatus = intMain(args: _*)
+
+    // always exit the JVM so that we don't leave any Dispatch executors hanging
+//    if (exitStatus != 0)
+      System.exit(exitStatus)
+  }
+
+  val USAGE =
+    """Usage: ozone <command> [<args>...]
+      |
+      |List of commands:
+      |
+      |  register        Register a new Organization on OxyjenZone""".stripMargin
+
+  def intMain(args: String*): Int = {
+    if (args.isEmpty) {
+      errLog warn USAGE
+      return 1
+    }
+
+    val command = args(0)
+    val commandArguments = args.slice(1, args.length)
+    command match {
+      case "register" =>
+        Register.main(commandArguments:_*)
+      case unknown =>
+        errLog warn s"Unrecognized command '$unknown'"
+        2
+    }
+  }
+}

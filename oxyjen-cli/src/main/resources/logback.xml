@@ -16,6 +16,10 @@
         <appender-ref ref="stderr"/>
     </logger>
 
+    <logger name="org.oxyjen.ozone.Main" level="INFO" additivity="false">
+        <appender-ref ref="stderr"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="main"/>
     </root>
