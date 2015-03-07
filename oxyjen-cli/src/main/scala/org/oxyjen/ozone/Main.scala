@@ -1,6 +1,6 @@
 package org.oxyjen.ozone
 
-import org.oxyjen.ozone.commands.{Push, Register}
+import org.oxyjen.ozone.commands.{Login, Push, Register}
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -20,6 +20,7 @@ object Main {
       |List of commands:
       |
       |  register        Register a new Organization on OxyjenZone
+      |  login           Log in as your Organization to OxyjenZone
       |  push            Upload a template file to OxyjenZone""".stripMargin
 
   def intMain(args: String*): Int = {
@@ -33,6 +34,8 @@ object Main {
     command match {
       case "register" =>
         Register.main(commandArguments:_*)
+      case "login" =>
+        Login.main(commandArguments:_*)
       case "push" =>
         Push.main(commandArguments:_*)
       case unknown =>

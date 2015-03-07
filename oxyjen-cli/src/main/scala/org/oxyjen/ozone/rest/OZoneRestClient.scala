@@ -18,6 +18,12 @@ object OZoneRestClient {
     Await.result(future, Duration.Inf)
   }
 
+  def login(orgId: String, password: String): Either[Throwable, LoginResponseJson] = {
+    val req = requestFor("login").POST.setBody(requestOrgJson(orgId, password))
+    val future = Http(req > LoginDispatchHandler).either
+    Await.result(future, Duration.Inf)
+  }
+
   def upload(name: String, version: String, filePath: String): Either[Throwable, UploadResponseJson] = {
     val req = requestFor("upload")
       .setQueryParameters(Map(
@@ -38,8 +44,6 @@ object OZoneRestClient {
   }
 }
 
-//case class OrgRequestJson(orgId: String, password: String)
-
 object RegisterDispatchHandler extends (Response => RegisterResponseJson) {
   override def apply(resp: Response): RegisterResponseJson = {
     val stringResponse = resp.getResponseBody
@@ -51,6 +55,23 @@ object RegisterDispatchHandler extends (Response => RegisterResponseJson) {
         json.extract[InvalidArgumentsJson]
       case 201 =>
         json.extract[OrgCreatedJson]
+    }
+  }
+
+  private implicit val formats = DefaultFormats
+}
+
+object LoginDispatchHandler extends (Response => LoginResponseJson) {
+  override def apply(resp: Response): LoginResponseJson = {
+    val stringResponse = resp.getResponseBody
+    val json = parse(stringResponse)
+    resp.getStatusCode match {
+      case 400 =>
+        json.extract[ClientErrorJson]
+      case 401 =>
+        json.extract[InvalidCredentialsJson]
+      case 200 =>
+        json.extract[LoginSuccessfulJson]
     }
   }
 
@@ -78,10 +99,13 @@ object UploadDispatchHandler extends (Response => UploadResponseJson) {
 
 sealed trait RegisterResponseJson
 
+sealed trait LoginResponseJson
+
 sealed trait UploadResponseJson
 
 final case class ClientErrorJson(status: String, message: String)
   extends RegisterResponseJson
+  with LoginResponseJson
   with UploadResponseJson
 final case class InvalidArgumentsJson(status: String, message: String,
                                 violations: List[String])
@@ -90,6 +114,11 @@ final case class InvalidArgumentsJson(status: String, message: String,
 
 final case class OrgCreatedJson(status: String, message: String, tksid: String)
   extends RegisterResponseJson
+
+final case class InvalidCredentialsJson(status: String, message: String)
+  extends LoginResponseJson
+final case class LoginSuccessfulJson(status: String, message: String, tksid: String)
+  extends LoginResponseJson
 
 final case class ServerErrorJson(status: String, message: String)
   extends UploadResponseJson

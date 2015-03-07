@@ -14,6 +14,17 @@ object OZoneOperations {
     }
   }
 
+  def login(orgId: String, password: String): LoginResponse = {
+    OZoneRestClient.login(orgId, password) match {
+      case Left(e) => ConnectionError(e)
+      case Right(json) => json match {
+        case ClientErrorJson(_, message) => UnexpectedError(message)
+        case InvalidCredentialsJson(_, _) => InvalidCredentials
+        case LoginSuccessfulJson(_, _, tksid) => LoginSuccessful(tksid)
+      }
+    }
+  }
+
   def upload(name: String, version: String, filePath: String): UploadResponse = {
     OZoneRestClient.upload(name, version, filePath) match {
       case Left(e) => ConnectionError(e)
@@ -37,13 +48,17 @@ protected[ozone] sealed trait UnsuccessfulRegisterResponse extends RegisterRespo
   def successful = false
 }
 
+sealed trait LoginResponse
+
 sealed trait UploadResponse
 
 case class ConnectionError(e: Throwable)
   extends UnsuccessfulRegisterResponse
+  with LoginResponse
   with UploadResponse
 case class UnexpectedError(message: String)
   extends UnsuccessfulRegisterResponse
+  with LoginResponse
   with UploadResponse
 case class UnexpectedServerError(message: String)
   extends UploadResponse
@@ -51,5 +66,8 @@ case class InvalidArguments(violations: List[String])
   extends UnsuccessfulRegisterResponse
   with UploadResponse
 case class OrgRegistered(tksid: String) extends SuccessfulRegisterResponse
+
+case object InvalidCredentials extends LoginResponse
+case class LoginSuccessful(tksid: String) extends LoginResponse
 
 case object FileUploaded extends UploadResponse
