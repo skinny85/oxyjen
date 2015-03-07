@@ -33,7 +33,8 @@ object Login {
       case InvalidCredentials =>
         errLog warn "Invalid Organization ID and/or password given"
         7
-      case LoginSuccessful(_) =>
+      case LoginSuccessful(tksid) =>
+        TokenPersister.save(tksid)
         println("Login successful")
         0
     }

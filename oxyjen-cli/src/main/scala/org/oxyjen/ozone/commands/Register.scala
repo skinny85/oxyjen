@@ -40,7 +40,8 @@ object Register {
         CommandsUtils.unexpectedError(msg)
       case InvalidArguments(violations) =>
         CommandsUtils.invalidArguments(violations)
-      case OrgRegistered(_) =>
+      case OrgRegistered(tksid) =>
+        TokenPersister.save(tksid)
         println("Organization registered")
         0
     }

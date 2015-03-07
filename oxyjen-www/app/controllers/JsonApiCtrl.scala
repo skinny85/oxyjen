@@ -57,24 +57,30 @@ object JsonApiCtrl extends Controller {
 
   def upload = Action.async(parse.temporaryFile) { implicit request =>
     (for {
+      tksid <- requiredRequestParam("tksid")
       name <- requiredRequestParam("name")
       version <- requiredRequestParam("version")
-      org <- OrganizationRepository.find("dummy").toRight("Organization 'dummy' not found").right
-    } yield Upload.upload(org, name, version, request.body.file)) match {
+    } yield (tksid, name, version)) match {
       case Left(msg) =>
         Future.successful(BadRequest(Json.obj("status" -> "ERROR", "message" -> msg)))
-      case Right(future) =>
-        Futures.mapTry(future) {
-          case Failure(e) =>
-            InternalServerError(Json.obj("status" -> "ERROR", "message" -> e.getMessage))
-          case Success(either) => either match {
-            case Left(violations) =>
-              UnprocessableEntity(Json.obj("status" -> "ERROR",
-                "message" -> "Invalid arguments",
-                "violations" -> violations.map(_.message)))
-            case Right(_) =>
-              Ok(Json.obj("status" -> "OK", "message" -> "Archive uploaded"))
-          }
+      case Right((tksid, name, version)) =>
+        OzoneSecurity.verifyToken(tksid) match {
+          case None =>
+            Future.successful(Unauthorized(Json.obj("status" -> "ERROR", "message" -> "Invalid token")))
+          case Some(org) =>
+            Futures.mapTry(Upload.upload(org, name, version, request.body.file)) {
+              case Failure(e) =>
+                InternalServerError(Json.obj("status" -> "ERROR", "message" -> e.getMessage))
+              case Success(either) => either match {
+                case Left(violations) =>
+                  UnprocessableEntity(Json.obj(
+                    "status" -> "ERROR",
+                    "message" -> "Invalid arguments",
+                    "violations" -> violations.map(_.message)))
+                case Right(_) =>
+                  Ok(Json.obj("status" -> "OK", "message" -> "Archive uploaded"))
+              }
+            }
         }
     }
   }

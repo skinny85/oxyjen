@@ -25,13 +25,14 @@ object OZoneOperations {
     }
   }
 
-  def upload(name: String, version: String, filePath: String): UploadResponse = {
-    OZoneRestClient.upload(name, version, filePath) match {
+  def upload(token: String, name: String, version: String, filePath: String): UploadResponse = {
+    OZoneRestClient.upload(token, name, version, filePath) match {
       case Left(e) => ConnectionError(e)
       case Right(json) => json match {
         case ClientErrorJson(_, message) => UnexpectedError(message)
-        case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
         case ServerErrorJson(_, msg) => UnexpectedServerError(msg)
+        case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
+        case UnauthorizedJson(_, _) => AuthorizationFailed
         case FileUploadedJson(_, _) => FileUploaded
       }
     }
@@ -70,4 +71,5 @@ case class OrgRegistered(tksid: String) extends SuccessfulRegisterResponse
 case object InvalidCredentials extends LoginResponse
 case class LoginSuccessful(tksid: String) extends LoginResponse
 
+case object AuthorizationFailed extends UploadResponse
 case object FileUploaded extends UploadResponse

@@ -24,9 +24,10 @@ object OZoneRestClient {
     Await.result(future, Duration.Inf)
   }
 
-  def upload(name: String, version: String, filePath: String): Either[Throwable, UploadResponseJson] = {
+  def upload(token: String, name: String, version: String, filePath: String): Either[Throwable, UploadResponseJson] = {
     val req = requestFor("upload")
       .setQueryParameters(Map(
+        "tksid" -> Seq(token),
         "name" -> Seq(name),
         "version" -> Seq(version)))
       .<<<(new File(filePath))
@@ -85,10 +86,12 @@ object UploadDispatchHandler extends (Response => UploadResponseJson) {
     resp.getStatusCode match {
       case 400 =>
         json.extract[ClientErrorJson]
-      case 422 =>
-        json.extract[InvalidArgumentsJson]
       case 500 =>
         json.extract[ServerErrorJson]
+      case 422 =>
+        json.extract[InvalidArgumentsJson]
+      case 401 =>
+        json.extract[UnauthorizedJson]
       case 200 =>
         json.extract[FileUploadedJson]
     }
@@ -121,6 +124,8 @@ final case class LoginSuccessfulJson(status: String, message: String, tksid: Str
   extends LoginResponseJson
 
 final case class ServerErrorJson(status: String, message: String)
+  extends UploadResponseJson
+final case class UnauthorizedJson(status: String, message: String)
   extends UploadResponseJson
 final case class FileUploadedJson(status: String, message: String)
   extends UploadResponseJson
