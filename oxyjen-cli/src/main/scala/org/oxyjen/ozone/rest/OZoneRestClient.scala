@@ -1,5 +1,7 @@
 package org.oxyjen.ozone.rest
 
+import java.io.File
+
 import com.ning.http.client.Response
 import dispatch.Defaults._
 import dispatch._
@@ -13,6 +15,16 @@ object OZoneRestClient {
   def register(orgId: String, password: String): Either[Throwable, RegisterResponseJson] = {
     val req = requestFor("register").POST.setBody(requestOrgJson(orgId, password))
     val future = Http(req > RegisterDispatchHandler).either
+    Await.result(future, Duration.Inf)
+  }
+
+  def upload(name: String, version: String, filePath: String): Either[Throwable, UploadResponseJson] = {
+    val req = requestFor("upload")
+      .setQueryParameters(Map(
+        "name" -> Seq(name),
+        "version" -> Seq(version)))
+      .<<<(new File(filePath))
+    val future = Http(req > UploadDispatchHandler).either
     Await.result(future, Duration.Inf)
   }
 
@@ -34,9 +46,9 @@ object RegisterDispatchHandler extends (Response => RegisterResponseJson) {
     val json = parse(stringResponse)
     resp.getStatusCode match {
       case 400 =>
-        json.extract[GenericResponseJson]
+        json.extract[ClientErrorJson]
       case 422 =>
-        json.extract[InvalidOrgJson]
+        json.extract[InvalidArgumentsJson]
       case 201 =>
         json.extract[OrgCreatedJson]
     }
@@ -45,11 +57,41 @@ object RegisterDispatchHandler extends (Response => RegisterResponseJson) {
   private implicit val formats = DefaultFormats
 }
 
+object UploadDispatchHandler extends (Response => UploadResponseJson) {
+  override def apply(resp: Response): UploadResponseJson = {
+    val stringResponse = resp.getResponseBody
+    val json = parse(stringResponse)
+    resp.getStatusCode match {
+      case 400 =>
+        json.extract[ClientErrorJson]
+      case 422 =>
+        json.extract[InvalidArgumentsJson]
+      case 500 =>
+        json.extract[ServerErrorJson]
+      case 200 =>
+        json.extract[FileUploadedJson]
+    }
+  }
+
+  private implicit val formats = DefaultFormats
+}
+
 sealed trait RegisterResponseJson
-final case class GenericResponseJson(status: String, message: String)
+
+sealed trait UploadResponseJson
+
+final case class ClientErrorJson(status: String, message: String)
   extends RegisterResponseJson
-final case class InvalidOrgJson(status: String, message: String,
+  with UploadResponseJson
+final case class InvalidArgumentsJson(status: String, message: String,
                                 violations: List[String])
   extends RegisterResponseJson
+  with UploadResponseJson
+
 final case class OrgCreatedJson(status: String, message: String, tksid: String)
   extends RegisterResponseJson
+
+final case class ServerErrorJson(status: String, message: String)
+  extends UploadResponseJson
+final case class FileUploadedJson(status: String, message: String)
+  extends UploadResponseJson

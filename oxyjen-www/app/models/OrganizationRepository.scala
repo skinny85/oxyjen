@@ -13,6 +13,9 @@ object OrganizationRepository {
   def create(orgId: String, password: String): Either[ConstraintViolations, String] =
     DB.withTransaction(doCreate(orgId, password)(_))
 
+  def find(orgId: String): Option[Organization] =
+    DB.withTransaction(doFind(orgId)(_))
+
   private val orgIdRegex = """\A[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z][a-zA-Z0-9]*)*\z""".r
 
   protected[models] def doValidate(orgId: String, password: String)(implicit c: Connection): Option[ConstraintViolations] = {

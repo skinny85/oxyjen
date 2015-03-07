@@ -1,6 +1,6 @@
 package org.oxyjen.ozone
 
-import org.oxyjen.ozone.commands.Register
+import org.oxyjen.ozone.commands.{Push, Register}
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -19,7 +19,8 @@ object Main {
       |
       |List of commands:
       |
-      |  register        Register a new Organization on OxyjenZone""".stripMargin
+      |  register        Register a new Organization on OxyjenZone
+      |  push            Upload a template file to OxyjenZone""".stripMargin
 
   def intMain(args: String*): Int = {
     if (args.isEmpty) {
@@ -32,6 +33,8 @@ object Main {
     command match {
       case "register" =>
         Register.main(commandArguments:_*)
+      case "push" =>
+        Push.main(commandArguments:_*)
       case unknown =>
         errLog warn s"Unrecognized command '$unknown'"
         2
