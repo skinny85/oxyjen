@@ -13,7 +13,7 @@ object TokenPersister {
     val tokenFile = theTokenFile()
     try {
       val source = Source.fromFile(tokenFile)
-      Some(source.mkString)
+      Some(source.mkString.trim)
     } catch {
       case e: IOException =>
         None
@@ -21,7 +21,7 @@ object TokenPersister {
   }
 
   def save(token: String): Unit = {
-    FileUtils.writeStringToFile(theTokenFile(), token)
+    FileUtils.writeStringToFile(theTokenFile(), token.trim)
   }
 
   private def theTokenFile(): File = {
