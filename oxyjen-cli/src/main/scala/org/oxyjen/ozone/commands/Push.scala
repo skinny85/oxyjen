@@ -24,6 +24,9 @@ object Push {
     val filePath = args(2)
 
     OZoneOperations.upload(token, name, version, filePath) match {
+      case FileMissing =>
+        errLog.warn("The file '{}' does not exist!", filePath)
+        1
       case ConnectionError(e) =>
         CommandsUtils.connectionError(e)
       case UnexpectedError(msg) =>

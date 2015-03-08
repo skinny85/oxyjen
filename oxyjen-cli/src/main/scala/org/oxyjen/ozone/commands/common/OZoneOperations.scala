@@ -1,5 +1,7 @@
 package org.oxyjen.ozone.commands.common
 
+import java.io.File
+
 import org.oxyjen.ozone.rest._
 
 object OZoneOperations {
@@ -26,7 +28,12 @@ object OZoneOperations {
   }
 
   def upload(token: String, name: String, version: String, filePath: String): UploadResponse = {
-    OZoneRestClient.upload(token, name, version, filePath) match {
+    val file = new File(filePath)
+    // TODO think about moving this check into OZoneRestClient.upload
+    if (!file.exists())
+      return FileMissing
+
+    OZoneRestClient.upload(token, name, version, file) match {
       case Left(e) => ConnectionError(e)
       case Right(json) => json match {
         case ClientErrorJson(_, msg) => UnexpectedError(msg)
@@ -89,6 +96,7 @@ case class OrgRegistered(tksid: String) extends SuccessfulRegisterResponse
 case object InvalidCredentials extends LoginResponse
 case class LoginSuccessful(tksid: String) extends LoginResponse
 
+case object FileMissing extends UploadResponse
 case object AuthorizationFailed extends UploadResponse
 case object FileUploaded extends UploadResponse
 

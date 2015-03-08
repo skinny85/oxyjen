@@ -24,13 +24,13 @@ object OZoneRestClient {
     Await.result(future, Duration.Inf)
   }
 
-  def upload(token: String, name: String, version: String, filePath: String): Either[Throwable, UploadResponseJson] = {
+  def upload(token: String, name: String, version: String, file: File): Either[Throwable, UploadResponseJson] = {
     val req = requestFor("upload")
       .setQueryParameters(Map(
         "tksid" -> Seq(token),
         "name" -> Seq(name),
         "version" -> Seq(version)))
-      .<<<(new File(filePath))
+      .<<<(file)
     val future = Http(req > UploadDispatchHandler).either
     Await.result(future, Duration.Inf)
   }
