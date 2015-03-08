@@ -6,24 +6,15 @@ import org.oxyjen.ozone.rest._
 
 object OZoneOperations {
   def register(orgId: String, password: String): RegisterResponse = {
-    OZoneRestClient.register(orgId, password) match {
-      case Left(e) => ConnectionError(e)
-      case Right(json) => json match {
-        case ClientErrorJson(_, msg) => UnexpectedError(msg)
-        case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
-        case OrgCreatedJson(_, _, tksid) => OrgRegistered(tksid)
-      }
+    handleRestResponse[RegisterResponse](OZoneRestClient.register(orgId, password)) {
+      case OrgCreatedJson(_, _, tksid) => OrgRegistered(tksid)
     }
   }
 
   def login(orgId: String, password: String): LoginResponse = {
-    OZoneRestClient.login(orgId, password) match {
-      case Left(e) => ConnectionError(e)
-      case Right(json) => json match {
-        case ClientErrorJson(_, msg) => UnexpectedError(msg)
-        case InvalidCredentialsJson(_, _) => InvalidCredentials
-        case LoginSuccessfulJson(_, _, tksid) => LoginSuccessful(tksid)
-      }
+    handleRestResponse(OZoneRestClient.login(orgId, password)) {
+      case InvalidCredentialsJson(_, _) => InvalidCredentials
+      case LoginSuccessfulJson(_, _, tksid) => LoginSuccessful(tksid)
     }
   }
 
@@ -33,28 +24,38 @@ object OZoneOperations {
     if (!file.exists())
       return FileMissing
 
-    OZoneRestClient.upload(token, name, version, file) match {
-      case Left(e) => ConnectionError(e)
-      case Right(json) => json match {
-        case ClientErrorJson(_, msg) => UnexpectedError(msg)
-        case ServerErrorJson(_, msg) => UnexpectedServerError(msg)
-        case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
-        case UnauthorizedJson(_, _) => AuthorizationFailed
-        case FileUploadedJson(_, _) => FileUploaded
-      }
+    handleRestResponse(OZoneRestClient.upload(token, name, version, file)) {
+      case UnauthorizedJson(_, _) => AuthorizationFailed
+      case FileUploadedJson(_, _) => FileUploaded
     }
   }
 
   def search(term: String): SearchResponse = {
-    OZoneRestClient.search(term) match {
-      case Left(e) => ConnectionError(e)
-      case Right(json) => json match {
-        case ClientErrorJson(_, msg) => UnexpectedError(msg)
-        case ServerErrorJson(_, msg) => UnexpectedServerError(msg)
-        case SearchResultsJson(_, results) =>
-          SearchResults(results.map(s =>
-            SearchGrouping(s.organization, s.name, s.versions)))
-      }
+    handleRestResponse(OZoneRestClient.search(term)) {
+      case SearchResultsJson(_, results) =>
+        SearchResults(results.map(s =>
+          SearchGrouping(s.organization, s.name, s.versions)))
+    }
+  }
+
+  private def handleRestResponse[R <: OZoneResponse]
+      (maybeResponse: Either[Throwable, OZoneResponseJson])
+      (fun: PartialFunction[OZoneResponseJson, R]): R = {
+    maybeResponse match {
+      case Left(e) => ConnectionError(e).asInstanceOf[R]
+      case Right(resp) =>
+        if (fun.isDefinedAt(resp))
+          fun(resp)
+        else {
+          resp match {
+            case ClientErrorJson(_, msg) =>
+              UnexpectedError(msg).asInstanceOf[R]
+            case ServerErrorJson(_, msg) =>
+              UnexpectedServerError(msg).asInstanceOf[R]
+            case InvalidArgumentsJson(_, _, violations) =>
+              InvalidArguments(violations).asInstanceOf[R]
+          }
+        }
     }
   }
 }
