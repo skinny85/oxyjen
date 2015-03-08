@@ -2,7 +2,7 @@ package models
 
 import models.artifactory.ArtifactoryIntegration
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object Artifacts {
   def search(org: Organization): Future[List[Artifact]] = {
@@ -13,7 +13,11 @@ object Artifacts {
     ArtifactoryIntegration.gavcSearch(groupId = org.orgId, artifactId = name, version = version)
   }
 
-  def search(name: String): Future[List[Artifact]] = {
-    ArtifactoryIntegration.nameLike(name)
+  def matching(name: String)(implicit ec: ExecutionContext): Future[Map[(String, String), Seq[String]]] = {
+    ArtifactoryIntegration.nameMatching(name) map { artifacts =>
+      artifacts
+        .groupBy(a => (a.groupId, a.name))
+        .mapValues(as => as.map(_.version))
+    }
   }
 }

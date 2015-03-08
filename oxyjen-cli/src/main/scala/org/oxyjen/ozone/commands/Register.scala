@@ -3,6 +3,7 @@ package org.oxyjen.ozone.commands
 import java.util
 
 import org.oxyjen.ozone._
+import org.oxyjen.ozone.commands.common._
 import org.slf4j.LoggerFactory
 
 import scala.io.StdIn

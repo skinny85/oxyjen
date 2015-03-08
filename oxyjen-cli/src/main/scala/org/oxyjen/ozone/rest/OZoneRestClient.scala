@@ -35,6 +35,12 @@ object OZoneRestClient {
     Await.result(future, Duration.Inf)
   }
 
+  def search(term: String): Either[Throwable, SearchResponseJson] = {
+    val req = requestFor("search").setBody(s"""{"term": "$term"}""")
+    val future = Http(req > SearchDispatchHandler).either
+    Await.result(future, Duration.Inf)
+  }
+
   private def requestFor(function: String): Req = {
     (host("localhost", 9000) / "ozone" / "api" / function) setContentType(
       "application/json", "utf-8")
@@ -100,16 +106,39 @@ object UploadDispatchHandler extends (Response => UploadResponseJson) {
   private implicit val formats = DefaultFormats
 }
 
+object SearchDispatchHandler extends (Response => SearchResponseJson) {
+  override def apply(resp: Response): SearchResponseJson = {
+    val stringResponse = resp.getResponseBody
+    val json = parse(stringResponse)
+    resp.getStatusCode match {
+      case 400 =>
+        json.extract[ClientErrorJson]
+      case 500 =>
+        json.extract[ServerErrorJson]
+      case 200 =>
+        json.extract[SearchResultsJson]
+    }
+  }
+
+  private implicit val formats = DefaultFormats
+}
+
 sealed trait RegisterResponseJson
 
 sealed trait LoginResponseJson
 
 sealed trait UploadResponseJson
 
+sealed trait SearchResponseJson
+
 final case class ClientErrorJson(status: String, message: String)
   extends RegisterResponseJson
   with LoginResponseJson
   with UploadResponseJson
+  with SearchResponseJson
+final case class ServerErrorJson(status: String, message: String)
+  extends UploadResponseJson
+  with SearchResponseJson
 final case class InvalidArgumentsJson(status: String, message: String,
                                 violations: List[String])
   extends RegisterResponseJson
@@ -123,9 +152,12 @@ final case class InvalidCredentialsJson(status: String, message: String)
 final case class LoginSuccessfulJson(status: String, message: String, tksid: String)
   extends LoginResponseJson
 
-final case class ServerErrorJson(status: String, message: String)
-  extends UploadResponseJson
 final case class UnauthorizedJson(status: String, message: String)
   extends UploadResponseJson
 final case class FileUploadedJson(status: String, message: String)
   extends UploadResponseJson
+
+final case class SearchResultsJson(status: String, results: List[SearchGroupingJson])
+  extends SearchResponseJson
+final case class SearchGroupingJson(organization: String, name: String,
+                                    versions: List[String])

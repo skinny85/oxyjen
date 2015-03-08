@@ -1,5 +1,6 @@
 package org.oxyjen.ozone.commands
 
+import org.oxyjen.ozone.commands.common._
 import org.slf4j.LoggerFactory
 
 object Push {
@@ -28,9 +29,7 @@ object Push {
       case UnexpectedError(msg) =>
         CommandsUtils.unexpectedError(msg)
       case UnexpectedServerError(msg) =>
-        errLog error s"There was an unexpected error response from the server ($msg)"
-        errLog error "Please verify you have the latest version of the Oxyjen client and try again in a moment"
-        5
+        CommandsUtils.unexpectedServerError(msg)
       case InvalidArguments(violations) =>
         CommandsUtils.invalidArguments(violations)
       case AuthorizationFailed =>

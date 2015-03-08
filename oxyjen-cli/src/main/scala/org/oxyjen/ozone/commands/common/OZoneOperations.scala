@@ -1,4 +1,4 @@
-package org.oxyjen.ozone.commands
+package org.oxyjen.ozone.commands.common
 
 import org.oxyjen.ozone.rest._
 
@@ -7,7 +7,7 @@ object OZoneOperations {
     OZoneRestClient.register(orgId, password) match {
       case Left(e) => ConnectionError(e)
       case Right(json) => json match {
-        case ClientErrorJson(_, message) => UnexpectedError(message)
+        case ClientErrorJson(_, msg) => UnexpectedError(msg)
         case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
         case OrgCreatedJson(_, _, tksid) => OrgRegistered(tksid)
       }
@@ -18,7 +18,7 @@ object OZoneOperations {
     OZoneRestClient.login(orgId, password) match {
       case Left(e) => ConnectionError(e)
       case Right(json) => json match {
-        case ClientErrorJson(_, message) => UnexpectedError(message)
+        case ClientErrorJson(_, msg) => UnexpectedError(msg)
         case InvalidCredentialsJson(_, _) => InvalidCredentials
         case LoginSuccessfulJson(_, _, tksid) => LoginSuccessful(tksid)
       }
@@ -29,11 +29,24 @@ object OZoneOperations {
     OZoneRestClient.upload(token, name, version, filePath) match {
       case Left(e) => ConnectionError(e)
       case Right(json) => json match {
-        case ClientErrorJson(_, message) => UnexpectedError(message)
+        case ClientErrorJson(_, msg) => UnexpectedError(msg)
         case ServerErrorJson(_, msg) => UnexpectedServerError(msg)
         case InvalidArgumentsJson(_, _, violations) => InvalidArguments(violations)
         case UnauthorizedJson(_, _) => AuthorizationFailed
         case FileUploadedJson(_, _) => FileUploaded
+      }
+    }
+  }
+
+  def search(term: String): SearchResponse = {
+    OZoneRestClient.search(term) match {
+      case Left(e) => ConnectionError(e)
+      case Right(json) => json match {
+        case ClientErrorJson(_, msg) => UnexpectedError(msg)
+        case ServerErrorJson(_, msg) => UnexpectedServerError(msg)
+        case SearchResultsJson(_, results) =>
+          SearchResults(results.map(s =>
+            SearchGrouping(s.organization, s.name, s.versions)))
       }
     }
   }
@@ -53,16 +66,21 @@ sealed trait LoginResponse
 
 sealed trait UploadResponse
 
+sealed trait SearchResponse
+
 case class ConnectionError(e: Throwable)
   extends UnsuccessfulRegisterResponse
   with LoginResponse
   with UploadResponse
+  with SearchResponse
 case class UnexpectedError(message: String)
   extends UnsuccessfulRegisterResponse
   with LoginResponse
   with UploadResponse
+  with SearchResponse
 case class UnexpectedServerError(message: String)
   extends UploadResponse
+  with SearchResponse
 case class InvalidArguments(violations: List[String])
   extends UnsuccessfulRegisterResponse
   with UploadResponse
@@ -73,3 +91,6 @@ case class LoginSuccessful(tksid: String) extends LoginResponse
 
 case object AuthorizationFailed extends UploadResponse
 case object FileUploaded extends UploadResponse
+
+case class SearchResults(results: List[SearchGrouping]) extends SearchResponse
+case class SearchGrouping(organization: String, name: String, versions: List[String])

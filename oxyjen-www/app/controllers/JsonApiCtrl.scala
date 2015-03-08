@@ -85,9 +85,34 @@ object JsonApiCtrl extends Controller {
     }
   }
 
+  def search = Action.async(BodyParsers.parse.json) { implicit request =>
+    request.body.validate[SearchQueryJson].fold(
+      errors => Future.successful(
+        BadRequest(Json.obj("status" -> "ERROR", "message" -> JsError.toFlatJson(errors)))),
+      searchQueryJson => {
+        Futures.mapTry(Artifacts.matching(searchQueryJson.term)) {
+          case Failure(e) =>
+            InternalServerError(Json.obj("status" -> "ERROR", "message" -> e.getMessage))
+          case Success(resultsMap) =>
+            Ok(Json.obj(
+              "status" -> "OK",
+              "results" -> resultsMap.toSeq.map(v => Json.obj(
+                "organization" -> v._1._1,
+                "name" -> v._1._2,
+                "versions" -> v._2)
+              )
+            ))
+        }
+      }
+    )
+  }
+
   private def requiredRequestParam[A](param: String)(implicit req: Request[A]): RightProjection[String, String] = {
     req.getQueryString(param).toRight(s"Missing required parameter '$param'").right
   }
 
+  private case class SearchQueryJson(term: String)
+
+  private implicit val searchQueryJsonReads = Json.reads[SearchQueryJson]
   private implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 }

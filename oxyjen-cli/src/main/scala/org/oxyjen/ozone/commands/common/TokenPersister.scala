@@ -1,6 +1,6 @@
-package org.oxyjen.ozone.commands
+package org.oxyjen.ozone.commands.common
 
-import java.io.{IOException, File}
+import java.io.{File, IOException}
 
 import org.apache.commons.io.FileUtils
 
