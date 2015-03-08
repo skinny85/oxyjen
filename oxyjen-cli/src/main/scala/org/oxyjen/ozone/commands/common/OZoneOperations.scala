@@ -59,7 +59,9 @@ object OZoneOperations {
   }
 }
 
-sealed trait RegisterResponse {
+sealed trait OZoneResponse
+
+sealed trait RegisterResponse extends OZoneResponse {
   def successful: Boolean
 }
 protected[ozone] sealed trait SuccessfulRegisterResponse extends RegisterResponse {
@@ -69,11 +71,11 @@ protected[ozone] sealed trait UnsuccessfulRegisterResponse extends RegisterRespo
   def successful = false
 }
 
-sealed trait LoginResponse
+sealed trait LoginResponse extends OZoneResponse
 
-sealed trait UploadResponse
+sealed trait UploadResponse extends OZoneResponse
 
-sealed trait SearchResponse
+sealed trait SearchResponse extends OZoneResponse
 
 case class ConnectionError(e: Throwable)
   extends UnsuccessfulRegisterResponse

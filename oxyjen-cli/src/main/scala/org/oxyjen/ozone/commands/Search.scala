@@ -14,13 +14,7 @@ object Search {
 
     val term = args(0)
 
-    OZoneOperations.search(term) match {
-      case ConnectionError(e) =>
-        CommandsUtils.connectionError(e)
-      case UnexpectedError(msg) =>
-        CommandsUtils.unexpectedError(msg)
-      case UnexpectedServerError(msg) =>
-        CommandsUtils.unexpectedError(msg)
+    OZoneCommonResponses.handleOZoneResponse(OZoneOperations.search(term)) {
       case SearchResults(results) =>
         if (results.isEmpty)
           println("Sorry, your query did not match any results")

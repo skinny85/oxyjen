@@ -26,11 +26,7 @@ object Login {
       }
     }
 
-    OZoneOperations.login(orgId, password) match {
-      case ConnectionError(e) =>
-        CommandsUtils.connectionError(e)
-      case UnexpectedError(msg) =>
-        CommandsUtils.unexpectedError(msg)
+    OZoneCommonResponses.handleOZoneResponse(OZoneOperations.login(orgId, password)) {
       case InvalidCredentials =>
         errLog warn "Invalid Organization ID and/or password given"
         7

@@ -2,7 +2,6 @@ package org.oxyjen.ozone.commands
 
 import java.util
 
-import org.oxyjen.ozone._
 import org.oxyjen.ozone.commands.common._
 import org.slf4j.LoggerFactory
 
@@ -34,13 +33,7 @@ object Register {
       }
     }
 
-    OZoneOperations.register(orgId, password) match {
-      case ConnectionError(e) =>
-        CommandsUtils.connectionError(e)
-      case UnexpectedError(msg) =>
-        CommandsUtils.unexpectedError(msg)
-      case InvalidArguments(violations) =>
-        CommandsUtils.invalidArguments(violations)
+    OZoneCommonResponses.handleOZoneResponse(OZoneOperations.register(orgId, password)) {
       case OrgRegistered(tksid) =>
         TokenPersister.save(tksid)
         println("Organization registered")

@@ -23,18 +23,10 @@ object Push {
     val version = args(1)
     val filePath = args(2)
 
-    OZoneOperations.upload(token, name, version, filePath) match {
+    OZoneCommonResponses.handleOZoneResponse(OZoneOperations.upload(token, name, version, filePath)) {
       case FileMissing =>
         errLog.warn("The file '{}' does not exist!", filePath)
         1
-      case ConnectionError(e) =>
-        CommandsUtils.connectionError(e)
-      case UnexpectedError(msg) =>
-        CommandsUtils.unexpectedError(msg)
-      case UnexpectedServerError(msg) =>
-        CommandsUtils.unexpectedServerError(msg)
-      case InvalidArguments(violations) =>
-        CommandsUtils.invalidArguments(violations)
       case AuthorizationFailed =>
         errLog warn "Your session has expired. Execute 'ozone login' to sign in and try again"
         8
