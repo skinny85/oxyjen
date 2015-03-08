@@ -1,4 +1,4 @@
 #!/bin/bash
 
 script_dir=`dirname "$0"`
-java -cp "$script_dir/../lib/*:$script_dir/../*" org.oxyjen.Main $*
+java -cp "$script_dir/../lib/*:$script_dir/../*" org.oxyjen.Main "$@"
