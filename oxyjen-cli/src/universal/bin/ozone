@@ -1,4 +1,46 @@
 #!/bin/bash
 
-script_dir=`dirname "$0"`
-java -cp "$script_dir/../lib/*:$script_dir/../*" org.oxyjen.ozone.Main "$@"
+function realpath () {
+(
+  TARGET_FILE="$1"
+  CHECK_CYGWIN="$2"
+
+  cd "$(dirname "$TARGET_FILE")"
+  TARGET_FILE=$(basename "$TARGET_FILE")
+
+  COUNT=0
+  while [ -L "$TARGET_FILE" -a $COUNT -lt 100 ]
+  do
+      TARGET_FILE=$(readlink "$TARGET_FILE")
+      cd "$(dirname "$TARGET_FILE")"
+      TARGET_FILE=$(basename "$TARGET_FILE")
+      COUNT=$(($COUNT + 1))
+  done
+
+  if [ "$TARGET_FILE" == "." -o "$TARGET_FILE" == ".." ]; then
+    cd "$TARGET_FILE"
+    TARGET_FILEPATH=
+  else
+    TARGET_FILEPATH=/$TARGET_FILE
+  fi
+
+  echo "$(pwd -P)/$TARGET_FILE"
+)
+}
+
+function get_java_cmd() {
+  if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+    echo "$JAVA_HOME/bin/java"
+  else
+    echo "java"
+  fi
+}
+
+script_path="$(realpath "$0")"
+script_dir="$(realpath "$(dirname "$script_path")")"
+lib_dir="$(realpath "${script_dir}/../lib")"
+java_command=$(get_java_cmd)
+java_opts="${JAVA_OPTS}"
+
+$java_command ${java_opts[@]} -cp "$lib_dir/*:$script_dir/../*" \
+    org.oxyjen.ozone.Main "$@"
