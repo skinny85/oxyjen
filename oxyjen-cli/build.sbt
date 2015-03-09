@@ -1,5 +1,7 @@
 lazy val root = (project in file(".")).enablePlugins(UniversalPlugin)
 
+net.virtualvoid.sbt.graph.Plugin.graphSettings
+
 name := "oxyjen"
 
 version := "0.1"
