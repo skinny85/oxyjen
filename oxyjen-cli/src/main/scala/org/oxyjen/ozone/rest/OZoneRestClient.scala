@@ -51,53 +51,51 @@ object OZoneRestClient {
   }
 }
 
-abstract class AbstractJsonDispatchHandler[R] extends (Response => R) {
+abstract class AbstractJsonDispatchHandler[R <: OZoneResponseJson] extends (Response => R) {
   final def apply(resp: Response): R = {
     val stringResponseBody = resp.getResponseBody
     implicit val json = parse(stringResponseBody)
-    handle(resp.getStatusCode)
+    val code = resp.getStatusCode
+    if (handle.isDefinedAt(code, json))
+      handle(code, json)
+    else code match {
+      case 400 => extractJson[ClientErrorJson].asInstanceOf[R]
+      case 422 => extractJson[InvalidArgumentsJson].asInstanceOf[R]
+      case 500 => extractJson[ServerErrorJson].asInstanceOf[R]
+    }
   }
 
-  protected final def extractJson[T](implicit json: JValue, manifest: Manifest[T]): T = {
+  private def extractJson[T](implicit json: JValue, manifest: Manifest[T]): T = {
     json.extract[T]
   }
 
-  protected def handle(statusCode: Int)(implicit json: JValue): R
+  protected def handle: PartialFunction[(Int, JValue), R]
 
   protected implicit val formats = DefaultFormats
 }
 
 object RegisterDispatchHandler extends AbstractJsonDispatchHandler[RegisterResponseJson] {
-  protected def handle(statusCode: Int)(implicit json: JValue): RegisterResponseJson = statusCode match {
-    case 400 => extractJson[ClientErrorJson]
-    case 422 => extractJson[InvalidArgumentsJson]
-    case 201 => extractJson[OrgCreatedJson]
+  protected def handle = {
+    case (201, json) => json.extract[OrgCreatedJson]
   }
 }
 
 object LoginDispatchHandler extends AbstractJsonDispatchHandler[LoginResponseJson] {
-  protected def handle(statusCode: Int)(implicit json: JValue): LoginResponseJson = statusCode match {
-    case 400 => extractJson[ClientErrorJson]
-    case 401 => extractJson[InvalidCredentialsJson]
-    case 200 => extractJson[LoginSuccessfulJson]
+  protected def handle = {
+    case (200, json) => json.extract[LoginSuccessfulJson]
   }
 }
 
 object UploadDispatchHandler extends AbstractJsonDispatchHandler[UploadResponseJson] {
-  protected def handle(statusCode: Int)(implicit json: JValue): UploadResponseJson = statusCode match {
-    case 400 => extractJson[ClientErrorJson]
-    case 500 => extractJson[ServerErrorJson]
-    case 422 => extractJson[InvalidArgumentsJson]
-    case 401 => extractJson[UnauthorizedJson]
-    case 200 => extractJson[FileUploadedJson]
+  protected def handle = {
+    case (401, json) => json.extract[UnauthorizedJson]
+    case (200, json) => json.extract[FileUploadedJson]
   }
 }
 
 object SearchDispatchHandler extends AbstractJsonDispatchHandler[SearchResponseJson] {
-  protected def handle(statusCode: Int)(implicit json: JValue): SearchResponseJson = statusCode match {
-    case 400 => extractJson[ClientErrorJson]
-    case 500 => extractJson[ServerErrorJson]
-    case 200 => extractJson[SearchResultsJson]
+  protected def handle = {
+    case (200, json) => json.extract[SearchResultsJson]
   }
 }
 
