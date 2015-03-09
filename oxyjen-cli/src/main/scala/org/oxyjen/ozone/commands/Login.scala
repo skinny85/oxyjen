@@ -1,10 +1,10 @@
 package org.oxyjen.ozone.commands
 
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 import org.oxyjen.ozone.commands.common._
 
 object Login {
-  def main(args: String*): Int = {
+  def main(args: String*): ReturnCode = {
     val orgId =
       if (args.length > 0)
         args(0)
@@ -20,11 +20,11 @@ object Login {
     OZoneCommonResponses.handleOZoneResponse(OZoneOperations.login(orgId, password)) {
       case InvalidCredentials =>
         StdIo pute "Invalid Organization ID and/or password given"
-        7
+        ReturnCode.InvalidCredentials
       case LoginSuccessful(tksid) =>
         TokenPersister.save(tksid)
         StdIo puts "Login successful"
-        0
+        ReturnCode.Success
     }
   }
 }

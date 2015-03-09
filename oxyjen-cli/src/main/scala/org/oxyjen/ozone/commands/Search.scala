@@ -1,13 +1,13 @@
 package org.oxyjen.ozone.commands
 
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 import org.oxyjen.ozone.commands.common._
 
 object Search {
-  def main(args: String*): Int = {
+  def main(args: String*): ReturnCode = {
     if (args.length != 1) {
       StdIo pute "Usage: ozone search <term>"
-      return 1
+      return ReturnCode.IncorrectNumberOfArguments
     }
 
     val term = args(0)
@@ -18,7 +18,7 @@ object Search {
           StdIo puts "Sorry, your query did not match any results"
         else
           StdIo.puts("Found results:\n" + results.map(showSearchGrouping).mkString("\n"))
-        0
+        ReturnCode.Success
     }
   }
 

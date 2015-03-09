@@ -1,15 +1,15 @@
 package org.oxyjen.ozone
 
 import org.oxyjen.ozone.commands.{Search, Login, Push, Register}
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val exitStatus = intMain(args: _*)
+    val exitStatus = codeMain(args: _*)
 
     // always exit the JVM so that we don't leave any Dispatch executors hanging
-//    if (exitStatus != 0)
-      System.exit(exitStatus)
+//    if (exitStatus.code != 0)
+      System.exit(exitStatus.code)
   }
 
   val USAGE =
@@ -22,10 +22,10 @@ object Main {
       |  login           Log in as your Organization to OxyjenZone
       |  push            Upload a template file to OxyjenZone""".stripMargin
 
-  def intMain(args: String*): Int = {
+  def codeMain(args: String*): ReturnCode = {
     if (args.isEmpty) {
       StdIo pute USAGE
-      return 1
+      return ReturnCode.IncorrectNumberOfArguments
     }
 
     val command = args(0)
@@ -41,7 +41,7 @@ object Main {
         Search.main(commandArguments:_*)
       case _ =>
         StdIo.pute("Unrecognized command '{}'", command)
-        2
+        ReturnCode.ContradictoryArguments
     }
   }
 }

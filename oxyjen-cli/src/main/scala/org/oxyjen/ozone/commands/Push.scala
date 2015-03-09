@@ -1,19 +1,19 @@
 package org.oxyjen.ozone.commands
 
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 import org.oxyjen.ozone.commands.common._
 
 object Push {
-  def main(args: String*): Int = {
+  def main(args: String*): ReturnCode = {
     if (args.length != 3) {
       StdIo pute "Usage: ozone push <name> <version> <file>"
-      return 1
+      return ReturnCode.IncorrectNumberOfArguments
     }
 
     val maybeToken = TokenPersister.load()
     if (maybeToken.isEmpty) {
       StdIo pute "You need to be logged in to upload a template. Execute 'ozone login' and then try again"
-      return 1
+      return ReturnCode.SessionRequired
     }
 
     val token = maybeToken.get
@@ -24,13 +24,13 @@ object Push {
     OZoneCommonResponses.handleOZoneResponse(OZoneOperations.upload(token, name, version, filePath)) {
       case FileMissing =>
         StdIo.pute("The file '{}' does not exist!", filePath)
-        1
+        ReturnCode.ContradictoryArguments
       case AuthorizationFailed =>
         StdIo pute "Your session has expired. Execute 'ozone login' to sign in and try again"
-        8
+        ReturnCode.SessionRequired
       case FileUploaded =>
         StdIo puts "File uploaded"
-        0
+        ReturnCode.Success
     }
   }
 }

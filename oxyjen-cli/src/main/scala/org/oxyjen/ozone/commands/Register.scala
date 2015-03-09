@@ -1,10 +1,10 @@
 package org.oxyjen.ozone.commands
 
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 import org.oxyjen.ozone.commands.common._
 
 object Register {
-  def main(args: String*): Int = {
+  def main(args: String*): ReturnCode = {
     val orgId = {
       if (args.length > 0)
         args(0)
@@ -20,7 +20,7 @@ object Register {
         val password2 = StdIo readPassword "Repeat password: "
         if (password != password2) {
           StdIo pute "Given passwords do not match! Exiting"
-          return 3
+          return ReturnCode.ContradictoryArguments
         }
         password
       }
@@ -30,7 +30,7 @@ object Register {
       case OrgRegistered(tksid) =>
         TokenPersister.save(tksid)
         StdIo puts "Organization registered"
-        0
+        ReturnCode.Success
     }
   }
 }

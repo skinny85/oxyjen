@@ -5,7 +5,7 @@ import java.nio.file.Files
 
 import net.lingala.zip4j.core.ZipFile
 import org.apache.commons.io.FileUtils
-import org.oxyjen.common.StdIo
+import org.oxyjen.common.{ReturnCode, StdIo}
 import org.oxyjen.ivy.IvyResolver
 
 object Main {
@@ -13,23 +13,23 @@ object Main {
 
   def main(args: Array[String]) {
     val code = _main(args)
-    if (code != 0)
-      System exit code
+    if (code.code != 0)
+      System exit code.code
   }
 
-  def _main(args: Seq[String]): Int = {
+  def _main(args: Seq[String]): ReturnCode = {
     if (args.length < 1) {
       StdIo pute USAGE
-      return 1
+      return ReturnCode.IncorrectNumberOfArguments
     }
     val template = getTemplatePath(args(0))
     val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
 
     applyTemplate(template, targetDir, context)
-    0
+    ReturnCode.Success
   }
 
-  def getTemplatePath(arg: String): String = {
+  private def getTemplatePath(arg: String): String = {
     def looksLikeExternalDependency(arg: String) = arg.contains(":")
 
     def deleteOnExit(tempDir: File) {
