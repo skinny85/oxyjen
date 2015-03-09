@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "org.apache.ivy" % "ivy" % "2.3.0",
   "net.lingala.zip4j" % "zip4j" % "1.3.2",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
-  "org.json4s" %% "json4s-native" % "3.2.11",
+  "org.json4s" %% "json4s-native" % "3.2.11" exclude("org.scala-lang", "scala-compiler"),
   "org.scalatest" %% "scalatest" % "2.2.1" % "test")
 
 mappings in Universal <+= (packageBin in Compile) map { jar =>
