@@ -5,12 +5,10 @@ import java.nio.file.Files
 
 import net.lingala.zip4j.core.ZipFile
 import org.apache.commons.io.FileUtils
+import org.oxyjen.common.StdIo
 import org.oxyjen.ivy.IvyResolver
-import org.slf4j.LoggerFactory
 
 object Main {
-  private val errLog = LoggerFactory.getLogger("org.oxyjen.Main")
-
   val USAGE = "Usage: o2 TEMPLATE [TARGET_DIR] [NAME=VALUE]..."
 
   def main(args: Array[String]) {
@@ -21,7 +19,7 @@ object Main {
 
   def _main(args: Seq[String]): Int = {
     if (args.length < 1) {
-      errLog warn USAGE
+      StdIo pute USAGE
       return 1
     }
     val template = getTemplatePath(args(0))

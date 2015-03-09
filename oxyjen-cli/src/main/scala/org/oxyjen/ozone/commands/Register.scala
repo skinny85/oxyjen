@@ -1,42 +1,35 @@
 package org.oxyjen.ozone.commands
 
-import java.util
-
+import org.oxyjen.common.StdIo
 import org.oxyjen.ozone.commands.common._
-import org.slf4j.LoggerFactory
-
-import scala.io.StdIn
 
 object Register {
-  private val errLog = LoggerFactory.getLogger("org.oxyjen.ozone.Main")
-
   def main(args: String*): Int = {
     val orgId = {
       if (args.length > 0)
         args(0)
       else
-        StdIn.readLine("Organization ID to register: ")
+        StdIo readLine "Organization ID to register: "
     }
 
     val password = {
       if (args.length > 1)
         args(1)
       else {
-        val console = System.console()
-        val password = console.readPassword("Password: ")
-        val password2 = console.readPassword("Repeat password: ")
-        if (!util.Arrays.equals(password, password2)) {
-          errLog warn "Given passwords do not match! Exiting"
+        val password = StdIo readPassword "Password: "
+        val password2 = StdIo readPassword "Repeat password: "
+        if (password != password2) {
+          StdIo pute "Given passwords do not match! Exiting"
           return 3
         }
-        new String(password)
+        password
       }
     }
 
     OZoneCommonResponses.handleOZoneResponse(OZoneOperations.register(orgId, password)) {
       case OrgRegistered(tksid) =>
         TokenPersister.save(tksid)
-        println("Organization registered")
+        StdIo puts "Organization registered"
         0
     }
   }

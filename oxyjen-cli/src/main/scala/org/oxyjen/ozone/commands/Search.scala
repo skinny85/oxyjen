@@ -1,14 +1,12 @@
 package org.oxyjen.ozone.commands
 
+import org.oxyjen.common.StdIo
 import org.oxyjen.ozone.commands.common._
-import org.slf4j.LoggerFactory
 
 object Search {
-  private val errLog = LoggerFactory.getLogger("org.oxyjen.ozone.Main")
-
   def main(args: String*): Int = {
     if (args.length != 1) {
-      errLog warn "Usage: ozone search <term>"
+      StdIo pute "Usage: ozone search <term>"
       return 1
     }
 
@@ -17,9 +15,9 @@ object Search {
     OZoneCommonResponses.handleOZoneResponse(OZoneOperations.search(term)) {
       case SearchResults(results) =>
         if (results.isEmpty)
-          println("Sorry, your query did not match any results")
+          StdIo puts "Sorry, your query did not match any results"
         else
-          println("Found results:\n" + results.map(showSearchGrouping).mkString("\n"))
+          StdIo.puts("Found results:\n" + results.map(showSearchGrouping).mkString("\n"))
         0
     }
   }

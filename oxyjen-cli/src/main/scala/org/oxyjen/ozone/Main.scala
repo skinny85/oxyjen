@@ -1,11 +1,9 @@
 package org.oxyjen.ozone
 
 import org.oxyjen.ozone.commands.{Search, Login, Push, Register}
-import org.slf4j.LoggerFactory
+import org.oxyjen.common.StdIo
 
 object Main {
-  private val errLog = LoggerFactory.getLogger("org.oxyjen.ozone.Main")
-
   def main(args: Array[String]): Unit = {
     val exitStatus = intMain(args: _*)
 
@@ -26,7 +24,7 @@ object Main {
 
   def intMain(args: String*): Int = {
     if (args.isEmpty) {
-      errLog warn USAGE
+      StdIo pute USAGE
       return 1
     }
 
@@ -41,8 +39,8 @@ object Main {
         Push.main(commandArguments:_*)
       case "search" =>
         Search.main(commandArguments:_*)
-      case unknown =>
-        errLog warn s"Unrecognized command '$unknown'"
+      case _ =>
+        StdIo.pute("Unrecognized command '{}'", command)
         2
     }
   }
