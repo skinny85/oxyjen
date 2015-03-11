@@ -1,6 +1,6 @@
 package org.oxyjen.ozone
 
-import org.oxyjen.ozone.commands.{Search, Login, Push, Register}
+import org.oxyjen.ozone.commands.{Version, Search, Login, Push, Register}
 import org.oxyjen.common.{ReturnCode, StdIo}
 
 object Main {
@@ -17,6 +17,7 @@ object Main {
       |
       |List of commands:
       |
+      |  version         Output version information and exit
       |  search          Search OxyjenZone for templates
       |  register        Register a new Organization on OxyjenZone
       |  login           Log in as your Organization to OxyjenZone
@@ -31,6 +32,8 @@ object Main {
     val command = args(0)
     val commandArguments = args.slice(1, args.length)
     command match {
+      case "version" =>
+        Version.main(commandArguments:_*)
       case "register" =>
         Register.main(commandArguments:_*)
       case "login" =>
