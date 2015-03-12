@@ -1,11 +1,12 @@
 package org.oxyjen
 
 import org.oxyjen.Main.parseTargetDirAndContext
+import org.oxyjen.common.ReturnCode
 import org.oxyjen.test.AbstractUnitSpec
 
 class MainSpec extends AbstractUnitSpec {
   "Main" should "return error when called without arguments" in {
-    Main._main(Seq()) should be (1)
+    Main._main(Seq()) should be (ReturnCode.IncorrectNumberOfArguments)
   }
 
   it should "parse the target directory as '.' when called with no arguments" in {

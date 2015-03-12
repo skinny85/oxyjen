@@ -3,6 +3,7 @@ package org.oxyjen
 import java.io.File
 
 import org.apache.commons.io.FileUtils
+import org.oxyjen.common.ReturnCode
 import org.oxyjen.test.AbstractUnitSpec
 
 class MainIntegrationSpec extends AbstractUnitSpec {
@@ -79,7 +80,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
     FileUtils.writeStringToFile(new File(testDir + "templ2.txt"), "3 + 4")
 
     val outDir = testDir + "/out/"
-    Main._main(Seq(testDir, outDir)) should be (0)
+    Main._main(Seq(testDir, outDir)) should be (ReturnCode.Success)
 
     fileContentsShouldBe(outDir + "templ1.txt", "3\n")
     fileContentsShouldBe(outDir + "templ2.txt", "3 + 4\n")
@@ -175,7 +176,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
           |""".stripMargin,
         "@{= groupId }@"))
 
-    Main._main(Seq(inDir, outDir, "groupId=org.example", "projectId=example")) should be (0)
+    Main._main(Seq(inDir, outDir, "groupId=org.example", "projectId=example")) should be (ReturnCode.Success)
 
     fileContentsShouldBe(outDir + "META-INF/MANIFEST.MF", manifest)
     fileContentsShouldBe(outDir + "pom.xml",
@@ -199,7 +200,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
     val templateFilePath = testDir + "/" + templateFileName
     FileUtils.writeStringToFile(new File(templateFilePath), template)
 
-    Main._main(Seq(mainFirstArg.getOrElse(templateFilePath), outDir) ++ Seq(args: _*)) should be(0)
+    Main._main(Seq(mainFirstArg.getOrElse(templateFilePath), outDir) ++ Seq(args: _*)) should be(ReturnCode.Success)
 
     fileContentsShouldBe(outDir + "/" + outFile.getOrElse(templateFileName), expected)
   }
