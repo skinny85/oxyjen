@@ -29,7 +29,7 @@ object Main {
       applyTemplate(template, targetDir, context)
       ReturnCode.Success
     } catch {
-      case e: TemplateMissing =>
+      case e@(_: TemplateMissing | _: ArgNotAKeyValPair) =>
         StdIo pute e.getMessage
         ReturnCode.ContradictoryArguments
     }
@@ -73,7 +73,7 @@ object Main {
     def createContext(strings: Seq[String]) = strings.foldLeft(Map.empty[String, Any])((m, s) => {
       val parts = s.split('=')
       if (parts.length != 2)
-        throw new IncorrectCliArgs(s)
+        throw new ArgNotAKeyValPair(s)
       else
         m + ((parts(0), parts(1)))
     })
@@ -125,7 +125,7 @@ object Main {
     def this(file: File) =
       this(s"File '${file.getName}' does not exist")
   }
-}
 
-class IncorrectCliArgs(arg: String) extends
-  Exception(s"Argument is not a 'key=value' pair: '$arg'")
+  private class ArgNotAKeyValPair(arg: String) extends
+    Exception(s"Argument is not a 'key=value' pair: '$arg'")
+}

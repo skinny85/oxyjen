@@ -33,8 +33,8 @@ class MainSpec extends AbstractUnitSpec {
     context should be (Map("k2" -> "v2", "k1" -> "v1"))
   }
 
-  it should "fail for second argument not being a key-value pair" in {
-    an [IncorrectCliArgs] should be thrownBy callParse("target", "target")
+  it should "fail gracefully for third argument not being a key-value pair" in {
+    Main._main(Seq("build.sbt", "a", "b")) should be (ReturnCode.ContradictoryArguments)
   }
 
   it should "fail gracefully for non-existing template file given" in {
