@@ -61,6 +61,9 @@ object Main {
       zipFile.extractAll(tempDir.getPath)
       tempDir.getPath
     } else {
+      val file = new File(arg)
+      if (!file.exists())
+        throw new TemplateMissing(file)
       arg
     }
   }
@@ -119,6 +122,8 @@ object Main {
       Exception(msg) {
     def this(groupId: String, name: String, version: String) =
       this(s"Could not find template '$groupId:$name:$version'. Could there be a typo in the name(s)?")
+    def this(file: File) =
+      this(s"File '${file.getName}' does not exist")
   }
 }
 

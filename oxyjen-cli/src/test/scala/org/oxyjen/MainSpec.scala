@@ -37,6 +37,10 @@ class MainSpec extends AbstractUnitSpec {
     an [IncorrectCliArgs] should be thrownBy callParse("target", "target")
   }
 
+  it should "fail gracefully for non-existing template file given" in {
+    Main._main(Seq("xxx")) should be (ReturnCode.ContradictoryArguments)
+  }
+
   private def callParse(args: String*) = parseTargetDirAndContext(Seq(args: _*))
 
   it should "not overwrite an existing file" in {
