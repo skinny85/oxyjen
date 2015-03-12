@@ -22,11 +22,17 @@ object Main {
       StdIo pute USAGE
       return ReturnCode.IncorrectNumberOfArguments
     }
-    val template = getTemplatePath(args(0))
-    val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
 
-    applyTemplate(template, targetDir, context)
-    ReturnCode.Success
+    try {
+      val template = getTemplatePath(args(0))
+      val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
+      applyTemplate(template, targetDir, context)
+      ReturnCode.Success
+    } catch {
+      case e: TemplateMissing =>
+        StdIo pute e.getMessage
+        ReturnCode.ContradictoryArguments
+    }
   }
 
   private def getTemplatePath(arg: String): String = {
@@ -47,6 +53,8 @@ object Main {
       val artifactId = parts(1)
       val version = if (parts.length > 2) parts(2) else "latest.release"
       val artifact = IvyResolver.resolve(groupId, artifactId, version)
+      if (artifact.isEmpty)
+        throw new TemplateMissing(groupId, artifactId, version)
       val tempDir = Files.createTempDirectory("oxyjen").toFile
       deleteOnExit(tempDir)
       val zipFile = new ZipFile(artifact.get)
@@ -105,6 +113,12 @@ object Main {
 
     val outFile = new File(targetDir, result.targetFile)
     FileUtils.writeStringToFile(outFile, result.output)
+  }
+
+  private class TemplateMissing private[this] (msg: String) extends
+      Exception(msg) {
+    def this(groupId: String, name: String, version: String) =
+      this(s"Could not find template '$groupId:$name:$version'. Could there be a typo in the name(s)?")
   }
 }
 
