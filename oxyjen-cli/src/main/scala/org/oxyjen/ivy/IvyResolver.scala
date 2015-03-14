@@ -8,6 +8,7 @@ import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.IBiblioResolver
+import org.apache.ivy.util.{DefaultMessageLogger, Message}
 
 object IvyResolver {
   private val RESOLVER_NAME = "oxyjen"
@@ -33,6 +34,9 @@ object IvyResolver {
   }
 
   private def init() = {
+    // limit Ivy console logging
+    Message.setDefaultLogger(new DefaultMessageLogger(Message.MSG_ERR))
+
     val resolver = new IBiblioResolver
     resolver.setM2compatible(true)
     resolver.setName(RESOLVER_NAME)
