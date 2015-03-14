@@ -42,8 +42,4 @@ class MainSpec extends AbstractUnitSpec {
   }
 
   private def callParse(args: String*) = parseTargetDirAndContext(Seq(args: _*))
-
-  it should "not overwrite an existing file" in {
-    // later
-  }
 }

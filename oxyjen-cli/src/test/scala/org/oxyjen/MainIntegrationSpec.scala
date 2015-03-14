@@ -203,6 +203,23 @@ class MainIntegrationSpec extends AbstractUnitSpec {
     Main._main(Seq(templateFile.getPath, "a=b")) should be (ReturnCode.ErrorInScript)
   }
 
+  it should "not overwrite an existing file" in {
+    val testDir = testsTmpDir + "existing-file/in"
+    val templateFileName = "a.txt"
+    val outDir = testsTmpDir + "existing-file/out"
+    val outFile = templateFileName
+    FileUtils.writeStringToFile(new File(s"$outDir/$outFile"), "b")
+    writeTemplateAndGenerate(
+      testDir = testDir,
+      template = "c",
+      templateFileName = templateFileName,
+      mainFirstArg = None,
+      outDir = outDir,
+      outFile = Some(outFile),
+      expected = "b"
+    )
+  }
+
   private def writeTemplateAndGenerate(testDir: String,
                                       template: String,
                                       templateFileName: String,

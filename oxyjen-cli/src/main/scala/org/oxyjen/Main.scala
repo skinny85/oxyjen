@@ -124,7 +124,10 @@ object Main {
     TemplateEngine.applyTemplate(template, new OxyjenContext(templateFile.getName, context)) match {
       case SuccessfulApplication(output, targetFile) =>
         val outFile = new File(targetDir, targetFile)
-        FileUtils.writeStringToFile(outFile, output)
+        if (outFile.exists)
+          StdIo puts s"File '${outFile.getPath}' already exists - skipping to not overwrite"
+        else
+          FileUtils.writeStringToFile(outFile, output)
       case NashornNotFound =>
         throw new NotJava8
       case MissingValueInContext(name) =>
