@@ -2,7 +2,8 @@ package org.oxyjen
 
 import java.io.File
 import java.util.regex.Pattern
-import javax.script.{ScriptContext, SimpleScriptContext, ScriptEngineManager}
+import javax.script.{ScriptException, ScriptContext, SimpleScriptContext, ScriptEngineManager}
+
 import scala.util.Properties
 
 object TemplateEngine {
@@ -21,17 +22,39 @@ object TemplateEngine {
     while (matcher.find()) {
       val expressionBlock = matcher.group(0).startsWith("@{=")
       val script = matcher.group(1)
-      val result = nashorn.eval(script, scriptContext)
-      matcher.appendReplacement(sb, if (expressionBlock) String.valueOf(result) else "")
+      try {
+        val result = nashorn.eval(script, scriptContext)
+        matcher.appendReplacement(sb, if (expressionBlock) String.valueOf(result) else "")
+      } catch {
+        case e: ScriptException =>
+          e match {
+            case ReferenceError(name) =>
+              return MissingValueInContext(name)
+            case _ =>
+              return ScriptExecutionFailure(e)
+          }
+      }
     }
     matcher.appendTail(sb)
     val rawOutput = sb.toString.trim
     val output = if (rawOutput.isEmpty) "" else rawOutput + Properties.lineSeparator
-    new TemplateApplicationResult(output, oxyjenJsObject.fileName)
+    SuccessfulApplication(output, oxyjenJsObject.fileName)
   }
 
   private def bind(scriptContext: SimpleScriptContext, name: String, value: Any) {
     scriptContext.setAttribute(name, value, ScriptContext.ENGINE_SCOPE)
+  }
+
+  private object ReferenceError {
+    def unapply(e: ScriptException): Option[String] = {
+      val msg = e.getMessage
+      val regex = Pattern.compile("""ReferenceError: "([^"]*)" is not defined""")
+      val matcher = regex.matcher(msg)
+      if (matcher.find())
+        Some(matcher.group(1))
+      else
+        None
+    }
   }
 }
 
@@ -50,4 +73,8 @@ class OxyjenJsObject(var fileName: String) {
 
 class OxyjenContext(val targetFile: String, val context: Map[String, Any])
 
-class TemplateApplicationResult(val output: String, val targetFile: String)
+sealed trait TemplateApplicationResult
+case class SuccessfulApplication(output: String, targetFile: String)
+  extends TemplateApplicationResult
+case class MissingValueInContext(value: String) extends TemplateApplicationResult
+case class ScriptExecutionFailure(e: ScriptException) extends TemplateApplicationResult

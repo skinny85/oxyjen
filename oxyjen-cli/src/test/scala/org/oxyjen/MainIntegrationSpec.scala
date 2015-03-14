@@ -187,6 +187,22 @@ class MainIntegrationSpec extends AbstractUnitSpec {
       String.format(testFormat, "", "org.example"))
   }
 
+  it should "handle missing context argument gracefully" in {
+    val testDir = testsTmpDir + "missing-ctx-arg"
+    ensureTestDirIsEmpty(testDir)
+    val templateFile = new File(testDir, "a.txt")
+    FileUtils.writeStringToFile(templateFile, "@{= a }@")
+    Main._main(Seq(templateFile.getPath)) should be (ReturnCode.MissingScriptArg)
+  }
+
+  it should "not confuse missing context arg with using an unknown function" in {
+    val testDir = testsTmpDir + "missing-function"
+    ensureTestDirIsEmpty(testDir)
+    val templateFile = new File(testDir, "f.txt")
+    FileUtils.writeStringToFile(templateFile, "@{= a() }@")
+    Main._main(Seq(templateFile.getPath, "a=b")) should be (ReturnCode.ErrorInScript)
+  }
+
   private def writeTemplateAndGenerate(testDir: String,
                                       template: String,
                                       templateFileName: String,

@@ -41,8 +41,13 @@ class TemplateEngineSpec extends AbstractUnitSpec {
                                  expectedFile: String = "",
                                  context: Map[String, Any] = Map.empty) {
     val result = TemplateEngine.applyTemplate(template, new OxyjenContext(null, context))
-    result.output should be(if (expectedOutput.isEmpty) "" else expectedOutput + "\n")
-    if (!expectedFile.isEmpty)
-      result.targetFile should be (expectedFile)
+    result match {
+      case SuccessfulApplication(output, targetFile) =>
+        output should be(if (expectedOutput.isEmpty) "" else expectedOutput + "\n")
+        if (!expectedFile.isEmpty)
+          targetFile should be (expectedFile)
+      case _ =>
+        fail("Unsuccessful script execution: " + result)
+    }
   }
 }

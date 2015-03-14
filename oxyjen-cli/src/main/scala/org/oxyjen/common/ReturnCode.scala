@@ -13,4 +13,7 @@ object ReturnCode {
   val ValidationFailed = new ReturnCode(6)
   val InvalidCredentials = new ReturnCode(7)
   val SessionRequired = new ReturnCode(8)
+
+  val MissingScriptArg = new ReturnCode(9)
+  val ErrorInScript = new ReturnCode(10)
 }

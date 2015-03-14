@@ -2,6 +2,7 @@ package org.oxyjen
 
 import java.io.File
 import java.nio.file.Files
+import javax.script.ScriptException
 
 import net.lingala.zip4j.core.ZipFile
 import org.apache.commons.io.FileUtils
@@ -32,6 +33,12 @@ object Main {
       case e@(_: TemplateMissing | _: ArgNotAKeyValPair) =>
         StdIo pute e.getMessage
         ReturnCode.ContradictoryArguments
+      case e: MissingValueError =>
+        StdIo.pute("Missing required argument '{}'. Supply a value for it on the command line like so: {}=<value>", e.name, e.name)
+        ReturnCode.MissingScriptArg
+      case e: ScriptError =>
+        StdIo.pute("There was an error executing the script ({}). This is most likely a mistake in the template definition itself. We apologize for the inconvenience", e.getMessage)
+        ReturnCode.ErrorInScript
     }
   }
 
@@ -111,11 +118,15 @@ object Main {
 
   private def applyTemplateToNonDirFile(templateFile: File, targetDir: String, context: Map[String, Any]) {
     val template = FileUtils.readFileToString(templateFile)
-    val result = TemplateEngine.applyTemplate(template,
-      new OxyjenContext(templateFile.getName, context))
-
-    val outFile = new File(targetDir, result.targetFile)
-    FileUtils.writeStringToFile(outFile, result.output)
+    TemplateEngine.applyTemplate(template, new OxyjenContext(templateFile.getName, context)) match {
+      case SuccessfulApplication(output, targetFile) =>
+        val outFile = new File(targetDir, targetFile)
+        FileUtils.writeStringToFile(outFile, output)
+      case MissingValueInContext(name) =>
+        throw new MissingValueError(name)
+      case ScriptExecutionFailure(e) =>
+        throw new ScriptError(e)
+    }
   }
 
   private class TemplateMissing private[this] (msg: String) extends
@@ -128,4 +139,10 @@ object Main {
 
   private class ArgNotAKeyValPair(arg: String) extends
     Exception(s"Argument is not a 'key=value' pair: '$arg'")
+
+  private class MissingValueError(val name: String) extends
+    Exception
+
+  private class ScriptError(e: ScriptException) extends
+    Exception(e.getMessage)
 }
