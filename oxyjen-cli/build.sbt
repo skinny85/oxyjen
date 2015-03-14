@@ -1,4 +1,4 @@
-lazy val root = (project in file(".")).enablePlugins(UniversalPlugin)
+lazy val `oxyjen-cli` = (project in file(".")).enablePlugins(UniversalPlugin)
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
