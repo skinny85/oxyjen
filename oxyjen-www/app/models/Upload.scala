@@ -1,6 +1,7 @@
 package models
 
 import java.io.File
+import java.util.zip.{ZipException, ZipFile}
 
 import models.artifactory.ArtifactoryIntegration
 
@@ -8,7 +9,7 @@ import scala.concurrent.Future
 
 object Upload {
   def validate(org: Organization, name: String, version: String,
-               file: Option[File] = None): Future[ConstraintViolations] = {
+               archive: Option[File] = None): Future[ConstraintViolations] = {
     var ret: Seq[ConstraintViolation] = Seq.empty
 
     def addNameViolation(message: String) {
@@ -35,12 +36,23 @@ object Upload {
       addVersionViolation("Version can be at most 100 characters long")
     }
 
-    if (ret.isEmpty) {
+    val nameAndVersionAreCorrect = ret.isEmpty
+
+    if (archive.isDefined) {
+      try {
+        new ZipFile(archive.get)
+      } catch {
+        case _: ZipException =>
+          ret = ret :+ ConstraintViolation("archive", "The selected file is not a valid ZIP archive")
+      }
+    }
+
+    if (nameAndVersionAreCorrect) {
       Artifacts.search(org, name, version) map { result =>
         if (result.nonEmpty)
-          List(ConstraintViolation("", "There already exists an artifact with that name and version"))
+          ret :+ ConstraintViolation("", "There already exists an artifact with that name and version")
         else
-          Nil
+          ret
       }
     } else {
       Future.successful(ret)
