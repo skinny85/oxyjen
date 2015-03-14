@@ -12,6 +12,8 @@ object TemplateEngine {
     val matcher = regex.matcher(template)
     val sb = new StringBuffer
     val nashorn = new ScriptEngineManager().getEngineByName("nashorn")
+    if (nashorn == null)
+      return NashornNotFound
     val scriptContext = new SimpleScriptContext()
     for ((name, value) <- context.context) {
       bind(scriptContext, name, value)
@@ -76,5 +78,6 @@ class OxyjenContext(val targetFile: String, val context: Map[String, Any])
 sealed trait TemplateApplicationResult
 case class SuccessfulApplication(output: String, targetFile: String)
   extends TemplateApplicationResult
+case object NashornNotFound extends TemplateApplicationResult
 case class MissingValueInContext(value: String) extends TemplateApplicationResult
 case class ScriptExecutionFailure(e: ScriptException) extends TemplateApplicationResult

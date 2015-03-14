@@ -33,6 +33,9 @@ object Main {
       case e@(_: TemplateMissing | _: ArgNotAKeyValPair) =>
         StdIo pute e.getMessage
         ReturnCode.ContradictoryArguments
+      case e: NotJava8 =>
+        StdIo pute "You need Java 8 in order to use Oxyjen. Please download the appropriate version from oracle.com and put it on your path (or point JAVA_HOME to it)."
+        ReturnCode.InvalidEnvironment
       case e: MissingValueError =>
         StdIo.pute("Missing required argument '{}'. Supply a value for it on the command line like so: {}=<value>", e.name, e.name)
         ReturnCode.MissingScriptArg
@@ -122,6 +125,8 @@ object Main {
       case SuccessfulApplication(output, targetFile) =>
         val outFile = new File(targetDir, targetFile)
         FileUtils.writeStringToFile(outFile, output)
+      case NashornNotFound =>
+        throw new NotJava8
       case MissingValueInContext(name) =>
         throw new MissingValueError(name)
       case ScriptExecutionFailure(e) =>
@@ -139,6 +144,8 @@ object Main {
 
   private class ArgNotAKeyValPair(arg: String) extends
     Exception(s"Argument is not a 'key=value' pair: '$arg'")
+
+  private class NotJava8 extends Exception
 
   private class MissingValueError(val name: String) extends
     Exception
