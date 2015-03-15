@@ -29,7 +29,7 @@ object Register {
     OZoneCommonResponses.handleOZoneResponse(OZoneOperations.register(orgId, password)) {
       case OrgRegistered(tksid) =>
         TokenPersister.save(tksid)
-        StdIo puts "Organization registered"
+        StdIo puts "Organization registered (you are now logged in)"
         ReturnCode.Success
     }
   }
