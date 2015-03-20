@@ -1,0 +1,55 @@
+@(searchForm: Form[SearchCtrl.SearchViewModel], maybeOrg: Option[Organization], maybeResults: Option[Map[(String, String), Seq[String]]] = None)(implicit flash: Flash)
+
+@templates.ozone.oxyjen_zone(maybeOrg, "Search") {
+    <div class="search-container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h2>Search for templates</h2>
+
+                <form action="@routes.SearchCtrl.searchPost()" method="post" class="form-inline">
+                    <div class="form-group">
+                        <label for="searchTerm">Search term</label>
+                        <input name="term" type="text" id="searchTerm" placeholder="Search term"
+                            class="form-control" value="@searchForm("term").value">
+                    </div>
+
+                    <input type="submit" class="btn btn-success" value="Search">
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                @common.global_errors(searchForm)
+                @ozone.form_field_error(searchForm.error("term"))
+
+                @if(maybeResults.isDefined) {
+                    @defining(maybeResults.get) { results =>
+                        @if(results.nonEmpty) {
+                            <table class="table">
+                                <thead>
+                                    <th>Organization</th>
+                                    <th>Name</th>
+                                    <th>Version(s)</th>
+                                </thead>
+                                <tbody>
+                                @for(kv <- results) {
+                                    <tr>
+                                        <td>@(kv._1._1)</td>
+                                        <td>@(kv._1._2)</td>
+                                        <td>@(kv._2.mkString(", "))</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        } else {
+                            <div class="alert alert-warning">
+                                We're sorry, but your query did not match any results.
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -14,6 +14,9 @@ GET         /ozone/login                    controllers.SignInCtrl.login(orgId ?
 POST        /ozone/login                    controllers.SignInCtrl.loginPost
 GET         /ozone/logout                   controllers.SignInCtrl.logout
 
+GET         /ozone/search                   controllers.SearchCtrl.search
+POST        /ozone/search                   controllers.SearchCtrl.searchPost
+
 GET         /ozone/profile                  controllers.OrganizationCtrl.main
 GET         /ozone/profile/edit             controllers.OrganizationCtrl.edit
 POST        /ozone/profile/edit             controllers.OrganizationCtrl.editPost

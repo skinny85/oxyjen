@@ -4,11 +4,7 @@
 
     @common.flash_bootstrap()
 
-    @if(uploadForm.hasGlobalErrors) {
-        @for(error <- uploadForm.globalErrors) {
-            <span class="text-danger">@error.message</span>
-        }
-    }
+    @common.global_errors(uploadForm)
 
     @helper.form(action = routes.OrganizationCtrl.uploadPost(),
             'enctype -> "multipart/form-data") {

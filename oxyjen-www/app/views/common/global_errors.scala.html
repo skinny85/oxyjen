@@ -1,0 +1,7 @@
+@(form: Form[_])
+
+@if(form.hasGlobalErrors) {
+    @for(error <- form.globalErrors) {
+        <span class="text-danger">@error.message</span>
+    }
+}

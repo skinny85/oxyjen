@@ -14,32 +14,46 @@
             <div class="navbar-collapse collapse">
                 @if(maybeOrg.isDefined) {
                     @defining(maybeOrg.get) { org =>
-                        <div class="nav navbar-nav navbar-right dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button"
-                                    id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-                                @org.orgId <span class="caret"></span>
-                            </button>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="@routes.SearchCtrl.search()">Discover templates</a>
+                            </li>
 
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="@routes.OrganizationCtrl.main()">
-                                        View Profile
-                                    </a>
-                                </li>
-                                <li role="presentation" class="divider"></li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="@routes.SignInCtrl.logout()">
-                                        Log Out
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                            <li class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button"
+                                        id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                                    @org.orgId <span class="caret"></span>
+                                </button>
+
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                    <li role="presentation">
+                                        <a role="menuitem" tabindex="-1" href="@routes.OrganizationCtrl.main()">
+                                            View Profile
+                                        </a>
+                                    </li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation">
+                                        <a role="menuitem" tabindex="-1" href="@routes.SignInCtrl.logout()">
+                                            Log Out
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
                     }
                 } else {
-                    <div class="nav navbar-nav navbar-right">
-                        <a class="btn btn-default" href="@routes.RegisterCtrl.register()">Register</a>
-                        <a class="btn btn-success" href="@routes.SignInCtrl.login()">Log in</a>
-                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="@routes.SearchCtrl.search()">Discover templates</a>
+                        </li>
+
+                        <li>
+                            <div class="btn-group">
+                                <a class="btn btn-default" href="@routes.RegisterCtrl.register()">Register</a>
+                                <a class="btn btn-success" href="@routes.SignInCtrl.login()">Log in</a>
+                            </div>
+                        </li>
+                    </ul>
                 }
             </div>
         </div>
