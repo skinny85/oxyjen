@@ -1,8 +1,8 @@
-name := "oxyjen-www"
+lazy val `oxyjen-web` = (project in file(".")).enablePlugins(PlayScala)
+
+name := "oxyjen-web"
 
 version := "0.1"
-
-lazy val root = Project(id ="oxyjen-www", base = file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.4"
 

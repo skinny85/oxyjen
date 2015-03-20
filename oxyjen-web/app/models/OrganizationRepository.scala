@@ -45,7 +45,7 @@ object OrganizationRepository {
     }
 
     def orgIdIsOnReservedList(orgId: String): Boolean = {
-      Seq("official", "supported", "original") exists(_.equalsIgnoreCase(orgId))
+      Seq("official", "supported", "original", "test") exists(_.equalsIgnoreCase(orgId))
     }
 
     def addPasswordViolation(message: String) {
