@@ -2,33 +2,78 @@
 
 @templates.ozone.oxyjen_zone(maybeOrg) {
     <div class="jumbotron">
-        <div class="container">
+        <div class="container text-center">
             <h1>OxyjenZone</h1>
             <p>
-                Free online service for downloading and sharing
+                Free online service for hosting and sharing
                 <a href="@routes.MainCtrl.index()">Oxyjen</a> templates
             </p>
-            <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
         </div>
     </div>
 
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
-                <h2>Heading</h2>
-                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+            <div class="col-md-2 col-md-offset-2 vcenter">
+                <img src="/assets/images/download_icon.jpg" class="img-responsive">
             </div>
-            <div class="col-md-4">
-                <h2>Heading</h2>
-                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-            </div>
-            <div class="col-md-4">
-                <h2>Heading</h2>
-                <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+
+            <div class="col-md-6 vcenter">
+                <h3>Hosting</h3>
+                <p>
+                    Each time you use the <code>o2</code> command with a template like
+                    <code>:name</code>, the application will download the needed files from
+                    OxyjenZone.
+                </p>
             </div>
         </div>
-    </div> <!-- /container -->
+
+        <div class="row">
+            <div class="col-md-offset-2 col-md-6 vcenter">
+                <h3>Organizations</h3>
+                <p>
+                    OxyjenZone stores each template within an <strong>organization</strong>.
+                    Creating your own is super easy - register using the
+                    <a href="@routes.RegisterCtrl.register()">web app</a> or the
+                    command line by issuing <code>ozone register</code>.
+                </p>
+            </div>
+
+            <div class="col-md-2 vcenter">
+                <img src="/assets/images/org-person.gif" class="img-responsive">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2 col-md-offset-2 vcenter">
+                <img src="/assets/images/sharing.jpg" class="img-responsive">
+            </div>
+
+            <div class="col-md-6 vcenter">
+                <h3>Sharing</h3>
+                <p>
+                    Once your Organization is registered and you are logged in, sharing
+                    a template is trivial - either using the
+                    <a href="@routes.OrganizationCtrl.upload()">Upload tab of the Organization panel</a>,
+                    or through the command line by executing <code>ozone push</code>.
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-offset-2 col-md-6 vcenter">
+                <h3>Discovering templates</h3>
+                <p>
+                    Use the <a href="">search</a> functionality to discover new templates -
+                    both those from the official Oxyjen organization, and those uploaded
+                    by other users. If you shared your template, you should be able to find
+                    it there. You can also do it from the command line by issuing
+                    <code>ozone search</code>.
+                </p>
+            </div>
+
+            <div class="col-md-2 vcenter">
+                <img src="/assets/images/searching.jpeg" class="img-responsive">
+            </div>
+        </div>
+    </div>
 }

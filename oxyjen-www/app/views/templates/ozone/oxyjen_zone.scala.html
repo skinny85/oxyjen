@@ -5,16 +5,16 @@
 }
 
 @templates.main(title(subtitle)) {
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
                 <a class="navbar-brand" href="@routes.MainOzoneCtrl.index()">OxyjenZone</a>
             </div>
 
-            <div id="navbar" class="navbar-collapse collapse">
+            <div class="navbar-collapse collapse">
                 @if(maybeOrg.isDefined) {
                     @defining(maybeOrg.get) { org =>
-                        <div class="dropdown navbar-right">
+                        <div class="nav navbar-nav navbar-right dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button"
                                     id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
                                 @org.orgId <span class="caret"></span>
@@ -36,7 +36,7 @@
                         </div>
                     }
                 } else {
-                    <div class="navbar navbar-right">
+                    <div class="nav navbar-nav navbar-right">
                         <a class="btn btn-default" href="@routes.RegisterCtrl.register()">Register</a>
                         <a class="btn btn-success" href="@routes.SignInCtrl.login()">Log in</a>
                     </div>
