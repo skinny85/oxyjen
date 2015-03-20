@@ -1,90 +1,377 @@
 @templates.main("Oxyjen") {
-    @*<nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Project name</a>
+                <a class="navbar-brand" href="#">Oxyjen</a>
             </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <form class="navbar-form navbar-right">
-                    <div class="form-group">
-                        <input type="text" placeholder="Email" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" placeholder="Password" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-success">Sign in</button>
-                </form>
-            </div><!--/.navbar-collapse -->
-        </div>
-    </nav>*@
 
-    <div class="jumbotron">
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#get">Get Oxyjen</a></li>
+                    <li><a href="#usage">Usage Guide</a></li>
+                    <li><a href="@routes.MainOzoneCtrl.index()">OxyjenZone</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="jumbotron main-jumbotron">
         <div class="container">
-            <img src="@routes.Assets.at("images/oxyjen-logo.png")" alt="oxyjen-logo">
-            <p class="text-justify">
-                Oxyjen (pronounced 'oxygen') is a lightweight, easy to use and powerful
-                templating engine and code generation tool. It enables quick and
-                boilerplate-less early development while giving you access to the full
-                power of a programming language should you need it.
-                With <a href="@routes.MainOzoneCtrl.index()">OxyjenZone</a>,
-                a free online public repository service, you have thousands of ready-made
-                templates at your disposal, and can effortlessly share your own.
-            </p>
-            <p>
-                <a class="btn btn-primary btn-lg" href="#" role="button"> Learn more &raquo;</a>
-            </p>
+            <h1>Oxyjen</h1>
+            <h3>Lightweight and powerful code generation</h3>
         </div>
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h2>Easy install</h2>
-                <p>
-                    Installing Oxyjen is incredibly easy. Just <a href="#">download the latest
-                    release</a>, unzip it anywhere on your computer, and you're done!
-                    You can optionally add it to your system's PATH for convenience. Detailed
-                    instructions are <a href="#">given below</a>.
-                </p>
-                <p>
-                    <a class="btn btn-default" href="#" role="button">View details &raquo;</a>
-                </p>
-            </div>
+        <h2 id="about" class="navbar-anchor">What is it?</h2>
+        <p>
+            Oxyjen (pronounced exactly like 'oxygen') is a tool that facilitates automatically generating
+            any number and type of textual files, which makes it a perfect fit for any sort
+            of code generation and scaffolding to be used in programming projects. It gives
+            you access to hundreds of already created and working templates which cover a
+            wide array of use cases, and makes it practically trivial to create your own
+            templates and share them with your team and the rest of the world.
+        </p>
 
-            <div class="col-md-4">
-                <h2>Built for usability and power</h2>
-                <p>
-                    Oxyjen was built from the ground up to be easy to use. However, that does
-                    not take away anything from its power. By leveraging JavaScript,
-                    a fully-fledged programming language, it makes easy things almost trivial,
-                    and hard things possible. <a href="#">Learn how easy it is to use.</a>
-                </p>
-                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-            </div>
+        <h2>What is special about it?</h2>
+        <p>
+            There are a lot of already existing tools in the space of code generation and
+            scaffolding, like <a href="http://maven.apache.org/guides/introduction/introduction-to-archetypes.html" target="_blank"> Maven archetypes</a>,
+            <a href="http://yeoman.io/" target="_blank">Yeoman</a>,
+            <a href="http://guides.rubyonrails.org/command_line.html#rails-generate" target="_blank">Ruby on Rails generators</a>,
+            <a href="http://typesafe.com/activator/templates" target="_blank">Typesafe Activator templates </a>
+            and more. How does Oxyjen differ from those solutions?
+        </p>
+        <dl>
+            <dt>Lightweight</dt>
+            <dd>
+                The only dependency that Oxyjen requires to work is Java
+                installed on your system. You don't need to install any other programs other
+                than Oxyjen itself - which is as easy as unpacking one ZIP archive
+            </dd>
 
-            <div class="col-md-4">
-                <h2>Download & share in the Cloud</h2>
-                <p>
-                    Thanks to <a href="@routes.MainOzoneCtrl.index()">OxyjenZone</a> (OZone in short), you can
-                    immediately leverage thousands of templates created by the Oxyjen
-                    community. It also makes sharing your own templates super easy.
-                    <a href="@routes.RegisterCtrl.register()">Sign up now</a>
-                    - it's absolutely free.
-                </p>
-                <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-            </div>
-        </div>
+            <dt>General purpose</dt>
+            <dd>
+                Oxyjen is not tied to a specific tool, library, framework, specialty area
+                or even programming language - it can be used to generate any text file you need
+            </dd>
+
+            <dt>Flexible</dt>
+            <dd>
+                Oxyjen is equally well suited to generating an entire skeleton of a Java
+                enterprise application or just a single class with an accompanying test for it
+            </dd>
+
+            <dt>Easy to use</dt>
+            <dd>
+                Usability is the most important quality that Oxyjen is focused
+                on achieving
+            </dd>
+
+            <dt>Easy to extend</dt>
+            <dd>
+                Creating your own templates is as easy as can be - you
+                simply write your desired output, and then insert dynamic parts as needed.
+                There is no rigid structure you need to follow or some API you are required
+                to learn and implement
+            </dd>
+
+            <dt>Powerful</dt>
+            <dd>
+                Oxyjen uses JavaScript for its dynamic elements, which means you
+                have access to the full power of a programming language in your templates
+                if you ever decide you need it
+            </dd>
+
+            <dt>Easy sharing</dt>
+            <dd>
+                Oxyjen provides a free cloud service, called
+                <a href="@routes.MainOzoneCtrl.index()" target="_blank">OxyjenZone</a>,
+                which makes sharing your templates with others as painless as possible
+            </dd>
+        </dl>
 
         <hr>
 
+        <h2 id="get" class="navbar-anchor">Download &amp; Installation</h2>
+        <p>
+            Oxyjen is a command-line program. It's installation is very simple: download
+            the latest release archive from <a href="">here</a> and uzip it somewhere on your computer - let's call
+            that location <var>&lt;oxyjen-path&gt;</var>. You're practically done! You can
+            now invoke the application from the command line like so:
+        </p>
+
+        <pre><code>$ &lt;oxyjen-path&gt;/oxyjen-0.1/bin/o2</code></pre>
+
+        <p>
+            on Linux/Mac/Unix, or
+        </p>
+
+        <pre><code>$ &lt;oxyjen-path&gt;\oxyjen-0.1\bin\o2</code></pre>
+
+        <p>
+            on Windows (from now one, only the *nix version will be shown for brevity - the
+            Windows versions of the commands should be very similar).
+        </p>
+
+        <p class="alert alert-warning">
+            Note that Oxyjen requires Java 8 to be installed on your computer - either
+            directly available on the PATH, or its location pointed to by the JAVA_HOME
+            environment variable.
+        </p>
+
+        <p>
+            If you see a message similar to the following:
+        </p>
+
+        <pre><code>Usage: o2 TEMPLATE [TARGET_DIR] [NAME=VALUE]...</code></pre>
+
+        <p>
+            , that means everything is working as it should. What you might also want to do at
+            this point is add the application to your PATH, so you can invoke it simply by
+            typing <code>o2</code>, without the hassle of spelling out
+            <var>&lt;oxyjen-path&gt;</var>/bin/oxyjen-0.1 each time. There are multiple ways to do
+            that - the simplest is probably by invoking
+        </p>
+
+        <pre><code>$ export PATH=&lt;oxyjen-path&gt;/oxyjen-0.1/bin:$PATH</code></pre>
+
+        <p>
+            You might also want to add that line to your shell config (<code>.bashrc</code>,
+            <code>.zshrc</code> or similar), so you don't have to repeat that command each time you
+            start a new console session.
+        </p>
+
+        <hr>
+
+        <h2 id="usage" class="navbar-anchor">Basic usage</h2>
+        <p>
+            The <code>o2</code> command seen above is Oxyjen's main application. You use
+            it like so:
+        </p>
+
+        <pre><code>$ o2 &lt;template&gt; &lt;output-directory&gt;</code></pre>
+
+        <p>
+            The <var>&lt;output-directory&gt;</var> is where the results of the code
+            generation are to be stored. Providing it is optional - the value defaults to
+            the current directory if omitted. That location does not have to exist - it
+            will be created if necessary.
+        </p>
+
+        <p>
+            <var>&lt;template&gt;</var> is the heart of Oxyjen. In it's most basic form,
+            <var>&lt;template&gt;</var> can be a single file:
+        </p>
+
+        <pre><code>$ echo "Hello, World!" > template.txt
+$ o2 template.txt output
+$ cat output/template.txt
+Hello, World!</code></pre>
+
+        <p>
+            <var>&lt;template&gt;</var> can also be a directory - in that case the
+            contents of that directory are copied recursively:
+        </p>
+
+<pre><code>$ mkdir input
+$ echo "First template" > input/templ1.txt
+$ mkdir input/subdirectory
+$ echo "Second template" > input/subdirectory/templ2.txt
+$ o2 input/ output
+$ tree output/
+output/
+├── subdirectory
+│   └── templ2.txt
+└── templ1.txt
+
+1 directory, 2 files
+$ cat output/templ1.txt output/subdirectory/templ2.txt
+First template
+Second template
+</code></pre>
+
+        <div class="alert alert-warning">
+            <div class="glyphicon glyphicon-warning-sign" aria-hidden="true"></div>
+            <div>
+                Be careful not to use Oxyjen with binary files, as they might get corrupted
+                during the copying. If you are running <code>o2</code> with a directory as the first
+                argument, make sure that directory does not contain any binary files.
+            </div>
+        </div>
+
+        <p>
+            In this mode, <code>o2</code> works like a simple copy.
+        </p>
+
+        <h2>Dynamic templates</h2>
+
+        <p>
+            We can change that by making the template file dynamic, with a content like so:
+        </p>
+
+        <pre><code>Hello, @@{= name }@@!</code></pre>
+
+        <p>
+            The part between the <code>@@{=</code> and the <code>}@@</code> is the dynamic part. When evaluated,
+            Oxyjen will run the code in the dynamic parts (there can be any number of them
+            in a file) and substitute the result of that evaluation in the output file.
+            The code between the markers can be any valid JavaScript.
+            Here, we are simply referencing the value of the <var>name</var> variable. Where does
+            that value come from? That's simple - it's given on the command line in the
+            form of a <var>&lt;key&gt;=&lt;value&gt;</var> pair as the last argument. Here's an
+            example, using the template contents shown above:
+        </p>
+
+        <pre><code>$ echo "Hello, @@{= name }@@!" > greet.txt
+$ o2 greet.txt greet-output name=World
+$ cat greet-output/greet.txt
+Hello, World!</code></pre>
+
+        <h2>Changing the output's name and location</h2>
+
+        <p>
+            You've probably noticed that in every example so far, the output file's name
+            and relative location were identical to the template's file name and location.
+            This is the default behavior, but Oxyjen allows the template files to control
+            where should the output be and how it should be named.
+        </p>
+
+        <p>
+            The JavaScript code inside the dynamic parts of a template has access to a
+            special variable, <code>$o2</code>. This object has methods which allow
+            changing the output destination. Example usage:
+        </p>
+
+        <pre><code>$ echo '@@{ $o2.setFileName("output.txt") }@@ template content' > template.txt
+$ o2 template.txt
+$ cat output.txt
+template content
+</code></pre>
+
+        <p>
+            We've used a <em>statement block</em> in this example, which is delimited by
+            <code>@@{</code> and <code>}@@</code>, as opposed to the <em>expression blocks</em>
+            we have seen thus far which start with <code>@@{=</code> (both of them end with <code>}@@</code>).
+            The difference between them is that a statement block does not result in any
+            output in the resulting file - the code inside it is evaluated strictly for
+            its side effects.
+        </p>
+
+        <p>
+            In addition to <code>setFileName</code>, <code>$o2</code> also exposes a
+            <code>setFileDir</code> method which changes just the output directory, leaving
+            the file name unchanged. All paths used in <code>setFileName</code> and
+            <code>setFileDir</code> are relative to the output directory as supplied by
+            the caller of <code>o2</code> (remember that if omitted, it defaults to
+            <code>.</code> - the current directory).
+        </p>
+
+        <h2>Using remote templates</h2>
+
+        <p>
+            The last form of executing the <code>o2</code> command is with a template available from
+            <a href="@routes.MainOzoneCtrl.index()" target="_blank">OxyjenZone</a>,
+            the free template hosting and sharing cloud service that comes with Oxyjen.
+            The format of a template published there is
+            <code>&lt;organizationId&gt;:&lt;name&gt;:&lt;version&gt;</code>, for example,
+            <code>org:template:1.0</code>. <var>&lt;organizationId&gt;</var> is optional - if you
+            omit it, then <code>oxyjen</code>, the official Oxyjen organization, is assumed
+            (note that although you can omit the ID itself, the colon is still required - so,
+            <code>:template:1.0</code> instead of <code>template:1.0</code>).
+            <var>&lt;version&gt;</var> is also optional - if you omit it, then the latest version of the
+            template will be used (here the colon can be omitted). The template will be
+            downloaded from the server and then executed. You provide arguments to it in
+            the same manner as shown above - as <var>key=value</var> pairs on the
+            command line. Example:
+        </p>
+
+        <pre><code>$ o2 :greet name=World
+$ cat greet-output.txt
+Hello, World!</code></pre>
+
+        <div class="alert alert-success">
+            What happens when you don't supply a required parameter to a template?
+
+            <pre><code>$ o2 :greet
+Missing required argument 'name'. Supply a value for it on the command line like so: name=&lt;value&gt;
+</code></pre>
+
+            The execution ends with an error which states what argument was not found.
+            Unfortunately, as of this moment there isn't a mechanism in Oxyjen to indicate
+            what arguments a template expects, and so using some of them may require a
+            little trial and error. I am well aware of this flaw, and working hard on
+            correcting it - I have some ideas already, so stay tuned.
+        </div>
+
+        <h2>Publishing your templates</h2>
+
+        <p>
+            To publish your templates to OxyjenZone, you first need to bundle all the files
+            you want to include in them into a ZIP archive. Example:
+        </p>
+
+        <pre><code>$ zip my-template.zip file1.txt file2.txt a/b.txt</code></pre>
+
+        <p>
+            When the template is used, Oxyjen will unzip your archive and apply all of
+            the template files placed inside it, exactly like described above.
+        </p>
+
+        <p>
+            The next step is to register your organization. You do it using the
+            <code>ozone</code> application with the <code>register</code> command,
+            like so:
+        </p>
+
+        <pre><code>$ ozone register</code></pre>
+
+        <p>
+            You will be prompted for an Organization ID and password. If the supplied values
+            were correct, you should see a message that an Organization has been created,
+            and that you are now logged in (if you ever see a message that your session has
+            expired, you can log in again using <code>ozone login</code>).
+        </p>
+
+        <p>
+            Once you're registered, sharing your template is as easy as executing:
+        </p>
+
+        <pre><code>$ ozone push &lt;name&gt; &lt;version&gt; &lt;ZIP file&gt;</code></pre>
+
+        <p>
+            And that's it! You should now be able to use your template by supplying your
+            organization ID, name and version to the <code>o2</code> command.
+        </p>
+
+        <p>
+            As an aside, you can do all of those operations (registering, uploading etc.)
+            from a web app interface by visiting the <a href="@routes.MainOzoneCtrl.index()" target="_blank">OxyjenZone site</a>.
+        </p>
+
+        <h2>Future</h2>
+        <p>
+            Oxyjen is still very young. There is certainly a lot of room for improvement -
+            it is at version 0.1 for a reason. However, I
+            believe that it has huge potential. All of the necessary pieces are in place, and
+            now it's just a matter of building more capabilities on top of that solid
+            foundation. I have a ton of ideas about making the application more powerful and
+            easier to use, and I'm limited only by the amount of time I can spend on this project.
+            It's open source, available on <a href="" target="_blank">GitHub</a>,
+            so all contributions are very much welcome.
+        </p>
+
+        <h4>About the author</h4>
+        <p>
+            Oxyjen was created and is maintained by one person, Adam Ruka. I welcome you to
+            visit my <a href="http://endoflineblog.com" target="_blank">blog</a>, or ping
+            me on <a href="https://twitter.com/adam_ruka" target="_blank">Twitter</a>.
+        </p>
+
         <footer>
+            <hr>
             <p>&copy; 2015 Adam Ruka</p>
         </footer>
-    </div> <!-- /container -->
+    </div>
 }

@@ -1,3 +1,20 @@
-.jumbotron {
-    text-align: center;
+.main-jumbotron {
+    background-color: #99BFA0;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.main-jumbotron h1, .main-jumbotron h3 {
+    margin-left: 50px;
+}
+
+.navbar-anchor {
+    padding-top: 50px;
+    margin-top: -50px;
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
 }
