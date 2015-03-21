@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/oxyjen-web -Dconfig.file=conf/prod/application.conf -DapplyEvolutions.default=true -Dhttp.port=$PORT
