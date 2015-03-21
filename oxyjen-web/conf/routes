@@ -29,6 +29,6 @@ POST        /ozone/api/login                controllers.JsonApiCtrl.login
 PUT         /ozone/api/upload               controllers.JsonApiCtrl.upload
 GET         /ozone/api/search               controllers.JsonApiCtrl.search
 
+GET         /favicon.png                    controllers.Assets.at(path="/public", file="images/favicon.png")
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                   controllers.Assets.at(path="/public", file)
-#GET         /favicon                       controllers.Assets.at(path="/public", file="images/favicon.png")
