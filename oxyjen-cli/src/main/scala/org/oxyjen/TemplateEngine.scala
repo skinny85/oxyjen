@@ -62,7 +62,6 @@ object TemplateEngine {
 
 class OxyjenJsObject(var fileName: String) {
   def setFileName(path: String): Unit = {
-    println(s"$$o2.setFileName('$path') called")
     fileName = path
   }
 
