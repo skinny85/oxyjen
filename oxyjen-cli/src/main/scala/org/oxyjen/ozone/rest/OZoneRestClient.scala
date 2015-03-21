@@ -38,8 +38,8 @@ object OZoneRestClient {
   }
 
   private def requestFor(function: String): Req = {
-    (host("localhost", 9000) / "ozone" / "api" / function) setContentType(
-      "application/json", "utf-8")
+    (host("oxyjen.herokuapp.com") / "ozone" / "api" / function) setContentType(
+      "application/json", "utf-8") secure
   }
 
   private def requestOrgJson(orgId: String, password: String): String = {
