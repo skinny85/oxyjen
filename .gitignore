@@ -8,5 +8,5 @@ target/
 
 todo.txt
 
-# Artifactory
-artifactory*
+# Artifactory local instance
+/artifactory-*/
