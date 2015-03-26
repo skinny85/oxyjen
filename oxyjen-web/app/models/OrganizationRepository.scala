@@ -58,13 +58,6 @@ object OrganizationRepository {
       addPasswordViolation("Password must be at least 6 characters long")
     } else if (password.length > 100) {
       addPasswordViolation("Password can be at most 100 characters long")
-    } else {
-      val specialChars = """?!@#$%^&*+=-_/|\"""
-      if (!password.exists(_.isDigit) || !password.exists(_.isUpper)
-          || !password.exists(_.isLower) || !password.exists(specialChars.contains(_))) {
-        addPasswordViolation("Password must contain at least one of every: uppercase character" +
-          s", lowercase character, digit and special character ($specialChars)")
-      }
     }
 
     ConstraintViolations(ret)
