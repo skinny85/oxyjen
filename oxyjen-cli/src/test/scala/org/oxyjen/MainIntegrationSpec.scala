@@ -1,16 +1,16 @@
 package org.oxyjen
 
-import java.io.File
+import java.io.{StringReader, File}
 
 import org.apache.commons.io.FileUtils
 import org.oxyjen.common.ReturnCode
-import org.oxyjen.test.AbstractUnitSpec
+import org.oxyjen.test.{StdIoTest, AbstractUnitSpec}
 
 class MainIntegrationSpec extends AbstractUnitSpec {
-  val testsTmpDir = "target/integration-test-tmp/"
+  val TESTS_TMP_DIR = "target/integration-test-tmp/"
 
   "Main" should "generate a POM according to template" in {
-    val testDir = testsTmpDir + "pom-test"
+    val testDir = TESTS_TMP_DIR + "pom-test"
     writeTemplateAndGenerate(testDir = testDir,
       template =
         """@{ $o2.setFileName('pom.xml') }@
@@ -44,7 +44,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "create the output directory when it doesn't exist" in {
-    val testDir = testsTmpDir + "new-dir-test"
+    val testDir = TESTS_TMP_DIR + "new-dir-test"
     writeTemplateAndGenerate(testDir = testDir,
       template = "@{= a + b }@\n",
       templateFileName = "template.txt",
@@ -56,7 +56,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "allow setting target directory in the script" in {
-    val testDir = testsTmpDir + "out-dir-test"
+    val testDir = TESTS_TMP_DIR + "out-dir-test"
     writeTemplateAndGenerate(testDir = testDir,
       template =
         """abc reversed is '@{= 'abc'.split('').reverse().join('') }@'.
@@ -74,7 +74,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "call all templates recursively when directory is given as argument" in {
-    val testDir = testsTmpDir + "recur-test/"
+    val testDir = TESTS_TMP_DIR + "recur-test/"
     ensureTestDirIsEmpty(testDir)
     FileUtils.writeStringToFile(new File(testDir + "templ1.txt"), "@{= 1 + 2 }@")
     FileUtils.writeStringToFile(new File(testDir + "templ2.txt"), "3 + 4")
@@ -87,7 +87,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "preserve the original location of the file" in {
-    val testDir = testsTmpDir + "flatten-test"
+    val testDir = TESTS_TMP_DIR + "flatten-test"
     writeTemplateAndGenerate(testDir = testDir,
       template =
         """
@@ -102,7 +102,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "generate correct Maven project" in {
-    val testDir = testsTmpDir + "maven-test"
+    val testDir = TESTS_TMP_DIR + "maven-test"
     ensureTestDirIsEmpty(testDir)
     val inDir = testDir + "/in/"
     val outDir = testDir + "/out/"
@@ -188,7 +188,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "handle missing context argument gracefully" in {
-    val testDir = testsTmpDir + "missing-ctx-arg"
+    val testDir = TESTS_TMP_DIR + "missing-ctx-arg"
     ensureTestDirIsEmpty(testDir)
     val templateFile = new File(testDir, "a.txt")
     FileUtils.writeStringToFile(templateFile, "@{= a }@")
@@ -196,7 +196,7 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "not confuse missing context arg with using an unknown function" in {
-    val testDir = testsTmpDir + "missing-function"
+    val testDir = TESTS_TMP_DIR + "missing-function"
     ensureTestDirIsEmpty(testDir)
     val templateFile = new File(testDir, "f.txt")
     FileUtils.writeStringToFile(templateFile, "@{= a() }@")
@@ -204,20 +204,93 @@ class MainIntegrationSpec extends AbstractUnitSpec {
   }
 
   it should "not overwrite an existing file" in {
-    val testDir = testsTmpDir + "existing-file/in"
+    val testDir = TESTS_TMP_DIR + "existing-file/in"
     val templateFileName = "a.txt"
-    val outDir = testsTmpDir + "existing-file/out"
+    val outDir = TESTS_TMP_DIR + "existing-file/out"
     val outFile = templateFileName
+    ensureTestDirIsEmpty(outDir)
     FileUtils.writeStringToFile(new File(s"$outDir/$outFile"), "b")
+
     writeTemplateAndGenerate(
       testDir = testDir,
       template = "c",
       templateFileName = templateFileName,
       mainFirstArg = None,
       outDir = outDir,
-      outFile = Some(outFile),
+      outFile = None,
       expected = "b"
     )
+  }
+
+  it should "override user supplied value with local variable" in {
+    val testDir = TESTS_TMP_DIR + "local-overrides-user/"
+    val template =
+      """@{=
+        |  var b = 'local_b';
+        |  a + '***' + b
+        |}@
+      """.stripMargin
+    val templateFileName = "a.txt"
+    val outDir = testDir + "out"
+    val outFile = templateFileName
+
+    writeTemplateAndGenerate(
+      testDir = testDir,
+      template = template,
+      templateFileName = templateFileName,
+      mainFirstArg = None,
+      outDir = outDir,
+      outFile = None,
+      expected = "user_a***local_b\n",
+      "a=user_a", "b=user_b"
+    )
+  }
+
+  it should "not copy the contents of the meta file" in {
+    val testDir = TESTS_TMP_DIR + "meta-file-one"
+    ensureTestDirIsEmpty(testDir)
+    FileUtils.writeStringToFile(new File(s"$testDir/oxyjen.js"), "")
+    val outDir = testDir + "/out"
+
+    Main._main(Seq(testDir, outDir)) should be(ReturnCode.Success)
+
+    new File(outDir, "oxyjen.js").exists() should be(false)
+  }
+
+  it should "ask the user about missing parameters" in {
+    val testDir = TESTS_TMP_DIR + "meta-file-one"
+    ensureTestDirIsEmpty(testDir)
+    val metaFileContents =
+      """|$o2.param('x', 'Desc of x param');
+        |$o2.param('y', 'Desc of y param');
+        |""".stripMargin
+    FileUtils.writeStringToFile(new File(s"$testDir/oxyjen.js"), metaFileContents)
+    FileUtils.writeStringToFile(new File(s"$testDir/temp.txt"), "@{= x + y }@")
+    val outDir = testDir + "/out"
+
+    StdIoTest.mockConsoleToReadLines("a", "a") {
+      Main._main(Seq(testDir, outDir)) should be(ReturnCode.Success)
+    }
+
+    fileContentsShouldBe(s"$outDir/temp.txt", "aa\n")
+  }
+
+  it should "not ask the user about already provided parameters" in {
+    val testDir = TESTS_TMP_DIR + "meta-file-two"
+    ensureTestDirIsEmpty(testDir)
+    val metaFileContents =
+      """|$o2.param('x', 'Desc of x param');
+        |$o2.param('y', 'Desc of y param');
+        |""".stripMargin
+    FileUtils.writeStringToFile(new File(s"$testDir/oxyjen.js"), metaFileContents)
+    FileUtils.writeStringToFile(new File(s"$testDir/temp.txt"), "@{= x + y }@")
+    val outDir = testDir + "/out"
+
+    StdIoTest.mockConsoleToReadLines("a", "a") {
+      Main._main(Seq(testDir, outDir, "y=b")) should be(ReturnCode.Success)
+    }
+
+    fileContentsShouldBe(s"$outDir/temp.txt", "ab\n")
   }
 
   private def writeTemplateAndGenerate(testDir: String,

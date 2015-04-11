@@ -1,6 +1,6 @@
 package org.oxyjen
 
-import java.io.File
+import java.io.{FilenameFilter, File}
 import java.nio.file.Files
 import javax.script.ScriptException
 
@@ -25,8 +25,8 @@ object Main {
     }
 
     try {
-      val template = getTemplatePath(args(0))
-      val (targetDir, context) = parseTargetDirAndContext(args.slice(1, args.size))
+      val template = getTemplatePath(args.head)
+      val (targetDir, context) = parseTargetDirAndContext(args.tail)
       applyTemplate(template, targetDir, context)
       ReturnCode.Success
     } catch {
@@ -91,22 +91,45 @@ object Main {
     if (args.isEmpty) {
       (".", Map.empty[String, Any])
     } else {
-      if (looksLikeTargetDir(args(0))) {
-        (args(0), createContext(args.slice(1, args.size)))
+      if (looksLikeTargetDir(args.head)) {
+        (args.head, createContext(args.tail))
       } else {
         (".", createContext(args))
       }
     }
   }
 
-  def applyTemplate(templatePath: String, targetDir: String, context: Map[String, Any]) {
+  private def applyTemplate(templatePath: String, targetDir: String, context: Map[String, Any]) {
     val templateFile = new File(templatePath)
     if (templateFile.isDirectory) {
-      for (subfile <- templateFile.listFiles())
-        applyTemplate2(subfile.getPath, targetDir, context)
+      val metaFile = new File(templateFile, "oxyjen.js")
+      val resultContext = if (metaFile.exists()) {
+        TemplateEngine.executeMetaFile(FileUtils.readFileToString(metaFile)) match {
+          case NashornNotFound => throw new NotJava8
+          case ScriptExecutionFailure(e) => throw new ScriptError(e)
+          case TemplateDescriptor(params) =>
+            val missingParams = params.filterKeys(!context.contains(_))
+            var resultContext = context
+            for ((param, desc) <- missingParams) {
+              StdIo puts desc
+              val value = StdIo.readLine(s"Please provide a value for parameter '$param': ")
+              resultContext = resultContext + ((param, value))
+            }
+            resultContext
+        }
+      } else {
+        context
+      }
+
+      for (subfile <- templateFile.listFiles(MetaFilter))
+        applyTemplate2(subfile.getPath, targetDir, resultContext)
     } else {
       applyTemplateToNonDirFile(templateFile, targetDir, context)
     }
+  }
+
+  private object MetaFilter extends FilenameFilter {
+    override def accept(dir: File, name: String): Boolean = name != "oxyjen.js"
   }
 
   private def applyTemplate2(templatePath: String, targetDir: String, context: Map[String, Any]) {
