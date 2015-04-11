@@ -4,7 +4,7 @@ import org.oxyjen.common.{StdIo, ReturnCode}
 
 object Version {
   def main(args: String*): ReturnCode = {
-    StdIo puts "OxyjenZone Client version 0.1"
+    StdIo puts "OxyjenZone Client version 0.2"
     ReturnCode.Success
   }
 }

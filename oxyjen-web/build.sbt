@@ -2,7 +2,7 @@ lazy val `oxyjen-web` = (project in file(".")).enablePlugins(PlayScala)
 
 name := "oxyjen-web"
 
-version := "0.1"
+version := "0.2"
 
 scalaVersion := "2.11.4"
 
