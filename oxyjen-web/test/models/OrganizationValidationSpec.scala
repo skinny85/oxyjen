@@ -31,14 +31,14 @@ class OrganizationValidationSpec extends Specification {
     maybeViolations.isDefined must beTrue
     val violations = maybeViolations.get
     violations must have size 1
-    val violation = violations(0)
+    val violation = violations.head
     violation.property must be("orgId")
   }
 
   def confirmOrgIsValid(orgId: String): MatchResult[Any] = {
     try {
       val maybeViolations = OrganizationRepository.doValidate(orgId, "p@sSw0rd")(null)
-      1 === 2 // unreachable
+      maybeViolations.size === -1 // unreachable
     } catch {
       case _: NullPointerException => 1 === 1
     }
