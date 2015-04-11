@@ -268,6 +268,58 @@ template content
             <code>.</code> - the current directory).
         </p>
 
+        <h2>The template meta file</h2>
+
+        <p>
+            Let's go back for a second to the example with the 'greet' template that requires a single
+            parameter - a 'name' to greet the user with. What happens when we fail to
+            provide that value when executing the template?
+        </p>
+
+<pre><code>$ echo "Hello, @@{= name }@@!" > greet.txt
+$ o2 greet.txt
+Missing required argument 'name'. Supply a value for it on the command line like so: name=&lt;value&gt;
+</code></pre>
+
+        <p>
+            The execution ends with an error which states which argument was not found.
+            While you could execute the command again, this time providing the required
+            argument(s), this approach doesn't really scale - imagine how frustrating that
+            would be if a template had, say, 5 required parameters! That is why Oxyjen
+            includes a mechanism for specifying what arguments does a template expect.
+            You provide it with the so called <strong>template meta file</strong>.
+        </p>
+
+        <p>
+            This file <strong>has</strong> to be called <code>oxyjen.js</code> and placed
+            at the top level in the directory of your template. It will not be included
+            in the output - instead, the JavaScript code inside will be executed first,
+            before the rest of the files inside that directory. That code has access to a
+            special object, denoted by the variable <code>$o2</code> (that is the same name
+            as the variable used in the template files, but its purpose is different). This
+            object has one method, <code>param</code>, which takes two arguments: the
+            name of the expected parameter and a description of how does the template use
+            that parameter. If the template is invoked without providing that argument as
+            a <var>key=value</var> pair on the command line, Oxyjen will show the provided
+            description to the user and prompt him for a value, and only after that will
+            execute the remaining template files. As an example:
+        </p>
+
+<pre><code>$ mkdir greet-template
+$ echo "Hello, @@{= name }@@!" > greet-template/greet.txt
+$ echo '$o2.param("name", "The name to greet you with!");' > greet-template/oxyjen.js
+$ echo Adam | o2 greet-template greet-output
+The template requires an argument named 'name'. Description: The name to greet you with!
+Please provide a value for parameter 'name':
+$ tree greet-output
+greet-output/
+└── greet.txt
+
+0 directories, 1 file
+$ cat greet-output/greet.txt
+Hello, Adam!
+</code></pre>
+
         <h2>Using remote templates</h2>
 
         <p>
@@ -284,26 +336,14 @@ template content
             template will be used (here the colon can be omitted). The template will be
             downloaded from the server and then executed. You provide arguments to it in
             the same manner as shown above - as <var>key=value</var> pairs on the
-            command line. Example:
+            command line (if the template includes a meta file, you will be prompted to
+            provide values for any missing arguments, as explained in the previous
+            section). Example:
         </p>
 
         <pre><code>$ o2 :greet name=World
 $ cat greet-output.txt
 Hello, World!</code></pre>
-
-        <div class="alert alert-success">
-            What happens when you don't supply a required parameter to a template?
-
-            <pre><code>$ o2 :greet
-Missing required argument 'name'. Supply a value for it on the command line like so: name=&lt;value&gt;
-</code></pre>
-
-            The execution ends with an error which states what argument was not found.
-            Unfortunately, as of this moment there isn't a mechanism in Oxyjen to indicate
-            what arguments a template expects, and so using some of them may require a
-            little trial and error. I am well aware of this flaw, and working hard on
-            correcting it - I have some ideas already, so stay tuned.
-        </div>
 
         <h2>Publishing your templates</h2>
 
@@ -316,7 +356,10 @@ Missing required argument 'name'. Supply a value for it on the command line like
 
         <p>
             When the template is used, Oxyjen will unzip your archive and apply all of
-            the template files placed inside it, exactly like described above.
+            the template files placed inside it, exactly like described above. I
+            <strong>strongly</strong> suggest including a meta file (see description above)
+            if your template expects any arguments - this way you make your template much
+            easier to use.
         </p>
 
         <p>

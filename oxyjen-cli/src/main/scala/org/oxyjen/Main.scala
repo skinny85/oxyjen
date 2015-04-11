@@ -111,7 +111,7 @@ object Main {
             val missingParams = params.filterKeys(!context.contains(_))
             var resultContext = context
             for ((param, desc) <- missingParams) {
-              StdIo puts desc
+              StdIo puts s"The template requires an argument named '$param'. Description: $desc"
               val value = StdIo.readLine(s"Please provide a value for parameter '$param': ")
               resultContext = resultContext + ((param, value))
             }
