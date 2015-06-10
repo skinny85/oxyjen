@@ -1,6 +1,6 @@
 package org.oxyjen
 
-import org.oxyjen.Main.parseTargetDirAndContext
+import org.oxyjen.Main.parseTargetDirAndParams
 import org.oxyjen.common.ReturnCode
 import org.oxyjen.test.AbstractUnitSpec
 
@@ -24,13 +24,13 @@ class MainSpec extends AbstractUnitSpec {
   it should "parse the first argument as a key-value pair" in {
     val (targetDir, context) = callParse("key=value")
     targetDir should be (".")
-    context should be (Map("key" -> "value"))
+    context should be (Seq("key=value"))
   }
 
   it should "parse further arguments as key-value pairs" in {
     val (targetDir, context) = callParse("target", "k1=v1", "k2=v2")
     targetDir should be ("target")
-    context should be (Map("k2" -> "v2", "k1" -> "v1"))
+    context should be (Seq("k1=v1", "k2=v2"))
   }
 
   it should "fail gracefully for third argument not being a key-value pair" in {
@@ -41,5 +41,5 @@ class MainSpec extends AbstractUnitSpec {
     Main._main(Seq("xxx")) should be (ReturnCode.ContradictoryArguments)
   }
 
-  private def callParse(args: String*) = parseTargetDirAndContext(Seq(args: _*))
+  private def callParse(args: String*) = parseTargetDirAndParams(Seq(args: _*))
 }

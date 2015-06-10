@@ -1,6 +1,6 @@
 package org.oxyjen.ozone
 
-import org.oxyjen.ozone.commands.{Version, Search, Login, Push, Register}
+import org.oxyjen.ozone.commands._
 import org.oxyjen.common.{ReturnCode, StdIo}
 
 object Main {
@@ -42,6 +42,8 @@ object Main {
         Push.main(commandArguments:_*)
       case "search" =>
         Search.main(commandArguments:_*)
+      case "test" =>
+        Test.main(commandArguments: _*)
       case _ =>
         StdIo.pute("Unrecognized command '{}'", command)
         ReturnCode.ContradictoryArguments
