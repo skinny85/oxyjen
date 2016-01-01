@@ -4,7 +4,7 @@ net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 name := "oxyjen"
 
-version := "0.2"
+version := "0.3"
 
 scalaVersion := "2.11.4"
 
